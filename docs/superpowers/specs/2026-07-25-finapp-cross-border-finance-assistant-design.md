@@ -6,14 +6,20 @@
 
 ## 1. Summary
 
-A personal finance assistant that reads your email to build a complete picture of what you owe
-across accounts in two countries and two currencies, tells you when payments will collide with
-your balance, and finds recurring costs that are quietly growing.
+A personal finance assistant that reads your email to build a complete picture of your money across
+two countries and two currencies — what you owe, what you own, what you're spending, and what your
+investments have done. It tells you when payments will collide with your balance, and finds
+recurring costs that are quietly growing.
 
-No bank linking. No aggregator. No recurring cost. It runs on data already sitting in your inbox.
+No bank linking. No aggregator. It runs on data already sitting in your inbox.
 
 **One sentence:** *It knows what you owe, when it's due, what happens to your checking balance if
-you pay in the order you're planning, and which subscriptions are repricing.*
+you pay in the order you're planning, which subscriptions are repricing, and where you stand
+overall — in both currencies, on your phone.*
+
+**Running cost: $99/yr**, entirely the Apple Developer Program fee for the native iOS app (§3.1).
+Every other component — data, storage, compute, the model, notifications, price feeds — is $0.
+Drop the native app and the whole system runs free.
 
 ---
 
@@ -70,13 +76,39 @@ accumulating immediately. Everything in Phase 3 depends on it.
 scope for v1, but no design decision may make them unreachable. Concretely: every table carries a
 nullable `account_owner_id` from day one, and no logic assumes a single owner.
 
-**Not in v1:** credit score, live bank linking (Plaid/aggregators), budgets, net worth tracking,
-investment performance, mobile app, cancellation-on-your-behalf, bill negotiation.
+**In v1** (expanded by owner decision, 2026-07-25): everything in §4, plus a **native mobile app**,
+**net worth tracking**, **investment performance**, and **budgets**.
+
+**Not in v1:** credit score, live bank linking (Plaid/aggregators), cancellation-on-your-behalf,
+bill negotiation.
 
 **Credit score is excluded on the merits, not deferred for effort.** Bureau access is a partnership
 problem, and the Credit Repair Organizations Act prohibits charging in advance for services
 represented to improve a consumer's credit — structurally incompatible with a subscription. Cutting
-the score deletes an entire regulatory regime. If this ever goes multi-user, it stays cut.
+the score deletes an entire regulatory regime. If this ever goes multi-user, it stays cut. *This is
+the one item the owner's "etc." was not taken to include; flag if that reading is wrong.*
+
+### 3.1 Cost consequence of the mobile decision
+
+The owner's stated constraint was zero recurring cost (D4). A **native iOS app breaks that**:
+
+| Item | Cost | Avoidable? |
+|---|---|---|
+| Apple Developer Program | **$99/yr** | No — required to install on a physical iPhone beyond 7-day sideload |
+| Google Play Console | $25 one-time | Yes, if Android isn't needed |
+| EAS Build (cloud builds from Windows) | $0 on the free tier | Free tier is queue-limited, not feature-limited |
+
+Everything else in this design remains $0. **The honest position: v1 now costs $99/yr, entirely
+because of iOS.** Three ways to respond, owner's call:
+
+1. **Pay the $99.** Real app, real push, home-screen presence.
+2. **Android only** ($25 once) — but the owner carries an iPhone, so this is academic.
+3. **Ship the installable PWA first, add the native shell when the intelligence is proven.**
+   iOS 16.4+ gives an installed PWA real web push, which covers most of the gap at zero cost.
+
+**This spec assumes (1)** — the owner asked for a mobile app in v1 and that is the deliverable.
+The build order is nonetheless sequenced so that **the PWA works end-to-end before the native shell
+is built** (§15), which keeps option 3 live at no extra cost if the $99 turns out not to be worth it.
 
 ---
 
@@ -89,12 +121,21 @@ the score deletes an entire regulatory regime. If this ever goes multi-user, it 
 3. Catch subscription price increases and forgotten recurring charges.
 4. Explain *why* a month changed, decomposed — not just that it did.
 5. Track whether acting on a recommendation actually saved money.
+6. **See net worth in one place** — assets minus liabilities, across both countries, with honest
+   coverage gaps rather than a confident wrong number.
+7. **Track investment performance** — units held, current value, invested cost, and return,
+   for holdings the app can actually price.
+8. **Budget by category**, with progress against the month and a projection of where the month lands.
+9. **Reach the owner on their phone** — native app, real push notifications.
 
 **Non-goals**
 
 - Being a complete ledger. Email coverage is partial by nature; the app must be honest about gaps
   rather than pretending to completeness it doesn't have.
-- Investment advice of any kind.
+- **Investment advice of any kind.** Tracking performance is not advising on it. The app reports
+  what holdings did; it never recommends buying, selling, holding, or reallocating, and it never
+  projects future returns. This line is legal, not stylistic — crossing it moves the product into
+  the Investment Advisers Act's perimeter.
 - Beating Monarch or Copilot at generic spend dashboards.
 
 ---
@@ -108,13 +149,18 @@ the score deletes an entire regulatory regime. If this ever goes multi-user, it 
 | D3 | File/PDF import as the historical spine | Defeats all cold-start gates; SBI PDFs give 3.5 years free |
 | D4 | Zero recurring cost | Owner constraint. Costs little — the differentiator is arithmetic, not AI |
 | D5 | Local-first, local model | Free and private converge on the same architecture |
-| D6 | Installable PWA, email digest primary | iOS supports web push for home-screen apps; email never breaks |
+| D6 | ~~PWA only~~ → **PWA first, then native app via Expo** *(revised 2026-07-25)* | Owner asked for a mobile app in v1. PWA still ships first so the intelligence is proven before $99/yr is spent |
 | D7 | Dual-currency as a first-class concept | Not a flag. The owner's financial life is genuinely in two currencies |
 | D8 | Statements are authoritative; alerts are provisional | Reconciliation rule that makes the two-source model coherent |
 | D9 | No credit score, ever | See §3 |
+| D10 | Net worth = **known** assets − **known** liabilities, with a visible coverage ratio | Email cannot see every asset. A confident wrong net worth is worse than an honest partial one |
+| D11 | Investment valuation from free public NAV/price feeds | AMFI publishes daily NAV for every Indian mutual fund at no cost — the India side prices exactly, for free |
+| D12 | Holdings reconstructed from transaction history, not scraped | SIP allocation emails carry scheme + units; accumulating them yields the position without a broker integration |
+| D13 | Budgets are advisory, not blocking | Budget-shaming is the single best-documented cause of PFM abandonment. Budgets inform the projection; they never gate or nag |
 
-**Open — deferred, not decided:** whether the assistant's conversational layer eventually calls a
-hosted model (§12.3). v1 does not need it.
+**Reversal note.** D6 changed after the owner expanded scope. The original rationale — that the
+unproven part of this project is insight quality, not app delivery — still holds, which is why the
+native shell is sequenced last (§15) rather than first.
 
 ---
 
@@ -128,23 +174,32 @@ nothing below it knows what the data means.
 │  IMAP poller → parser registry → raw_message store          │
 │  PDF extractor (statements, incl. password-protected)       │
 │  CSV/OFX importer (manual, when available)                  │
+│  price feeds: AMFI NAV (daily, free) · FX rates (daily)      │
 └──────────────────────────┬─────────────────────────────────┘
                            │  normalize at the edge, once
 ┌─ CANONICAL LEDGER ───────▼─────────────────────────────────┐
-│  accounts · transactions · statements · balances            │
-│  integer minor units + ISO-4217 · dedupe_key · provenance   │
+│  accounts · transactions · statements · balances             │
+│  instruments · holdings · lots · valuations                  │
+│  integer minor units + ISO-4217 · dedupe_key · provenance    │
 └──────────────────────────┬─────────────────────────────────┘
                            │  deterministic arithmetic only
 ┌─ INSIGHT ENGINE ─────────▼─────────────────────────────────┐
 │  debt map · due-date calendar · cash-flow simulator          │
 │  recurring streams · price-step detection · fee ledger       │
 │  MoM attribution bridge · commitments & realized savings     │
+│  net worth (+ coverage ratio) · portfolio performance        │
+│  budgets & month-end projection                              │
 └──────────────────────────┬─────────────────────────────────┘
                            │  facts, never re-derived
 ┌─ DELIVERY ───────────────▼─────────────────────────────────┐
-│  weekly digest (email) · PWA · web push · Q&A (v1.1)        │
+│  weekly digest (email) · PWA · native app (Expo) · push      │
+│  Q&A (v1.1)                                                  │
 └────────────────────────────────────────────────────────────┘
 ```
+
+**One API, two clients.** The PWA and the native app are both thin clients over the same HTTP API.
+No business logic lives in either. This is what makes the native shell a re-skin rather than a
+rewrite — and what keeps option 3 in §3.1 available at zero cost.
 
 ### 6.1 Region portability
 
@@ -170,9 +225,12 @@ general-purpose field or the parser drops it.
 | PDF | `pdfjs-dist` with password support | Indian statements are commonly password-protected |
 | Jobs | `node-cron` in-process | Single machine, no queue needed |
 | Local model | Ollama, 8–14B quantized | RTX 5070 Ti Laptop (12GB) handles this comfortably |
-| Phone access | Tailscale | iPhone reaches the laptop anywhere, no port forwarding |
+| **Mobile** | **Expo (React Native) + EAS Build** | Cloud builds work from Windows — no Mac, no Xcode. One codebase, both platforms |
+| Phone access | Tailscale | Both clients reach the laptop anywhere, no port forwarding, no public exposure |
+| **Price data** | **AMFI daily NAV file (free, public)**; FX from a free daily rates source | Prices every Indian mutual fund exactly, at zero cost |
 | Digest delivery | Gmail SMTP to self | Free, reliable |
-| Push | Self-hosted VAPID web push | Free; iOS 16.4+ supports it for installed PWAs |
+| Push (web) | Self-hosted VAPID web push | Free; iOS 16.4+ supports it for installed PWAs |
+| Push (native) | Expo Push Service → APNs / FCM | Free; more reliable than iOS web push |
 
 **Deferred alternative:** if laptop-uptime dependence becomes annoying, the always-on path is
 Cloudflare Workers + D1 + Cron Triggers, with merchant adjudication batched to whenever the laptop
@@ -234,6 +292,51 @@ commitment
   id, insight_id, created_at, target_monthly_saving_minor, currency,
   status (open|kept|broken|expired), verified_at, actual_saving_minor
 ```
+
+### 7.2.1 Assets, holdings, and valuation
+
+```
+asset_account
+  id, owner_id (nullable), institution, kind (brokerage|checking|savings|
+  retirement|manual), currency, region, display_name, is_active
+
+instrument
+  id, kind (mutual_fund|equity|etf|cash|manual_asset),
+  region, currency, display_name,
+  external_id, external_id_scheme (amfi_scheme_code|isin|ticker|null)
+
+holding_lot
+  id, asset_account_id, instrument_id, acquired_at,
+  units, cost_minor, currency, source, source_message_id, confidence
+    -- one row per purchase event. SIPs produce many small lots.
+
+valuation
+  id, instrument_id, as_of_date, price_minor, currency, source
+    -- daily NAV / close price. Never overwritten; history is the point.
+
+manual_asset
+  id, owner_id (nullable), display_name, value_minor, currency,
+  as_of_date, note
+    -- anything email cannot see: property, cash, foreign accounts.
+    -- Explicitly user-entered and clearly labelled as such in the UI.
+
+budget
+  id, owner_id (nullable), category_id, period (month),
+  limit_minor, currency, is_rollover
+```
+
+**Holdings are reconstructed, not scraped.** SIP allocation emails carry scheme name, units
+allocated, and date — accumulate them and the position falls out. No broker integration, no
+credentials, no scraping.
+
+**Instrument identity is the hard part.** Mapping a broker's display name (e.g. an email saying
+"HDFC Large Cap Fund Direct") to an AMFI scheme code is a fuzzy-match problem with real consequences
+— match the wrong scheme and the valuation is silently wrong. Rules:
+
+- Matches are cached once resolved, and every cached match is user-confirmable.
+- A low-confidence match **is not auto-applied**; the holding shows as unpriced until confirmed.
+- An unpriced holding contributes its **cost basis** to net worth, never a guessed market value,
+  and is flagged in the coverage ratio.
 
 ### 7.3 Provenance and reconciliation
 
@@ -423,6 +526,75 @@ number that reads as dishonest the moment anyone checks it.
 Cancellation confirmation emails, where present, upgrade a realized saving from *inferred* to
 *verified*.
 
+### 9.8 Net worth
+
+```
+net_worth = Σ known assets − Σ known liabilities     (per currency)
+```
+
+**Liabilities are already solved** — that's the debt map (§9.1), and email coverage there is good.
+**Assets are the weak side**, and the design's job is to be honest about it rather than to guess.
+
+Asset sources, in descending confidence:
+
+| Source | Confidence | Notes |
+|---|---|---|
+| Balance observed in a statement | High | Dated, authoritative |
+| Balance from a low-balance / transaction alert | Medium | Point-in-time, may be stale |
+| Priced holding (NAV × units) | High | Exact, where the instrument mapped |
+| Unpriced holding | Low | Contributes cost basis only |
+| Manual asset | User-asserted | Clearly labelled as such |
+
+**The coverage ratio is a first-class output, displayed next to the number.** It states what fraction
+of known accounts have a balance observation newer than N days, and lists what's stale or missing.
+
+**Hard rule: net worth is never shown as a bare figure.** It always appears with its as-of date and
+coverage ratio. A net worth that silently omits a stale account is the single easiest way for this
+app to be confidently wrong, and confidently wrong is worse than visibly incomplete.
+
+Net worth is tracked over time (one snapshot per day), because the trend is more useful than the
+level — and the trend is robust to coverage gaps in a way the level is not.
+
+### 9.9 Investment performance
+
+Per instrument and per portfolio, all deterministic:
+
+```
+units          = Σ lot.units
+cost_basis     = Σ lot.cost_minor
+market_value   = units × latest_valuation.price_minor
+absolute_return = market_value − cost_basis
+simple_return   = absolute_return / cost_basis
+```
+
+Because SIPs are irregular contributions over time, a simple return is misleading on its own.
+The engine also computes **XIRR** (money-weighted return) over the lot cash-flow series, which is
+the correct measure for a contribution schedule and is what Indian brokerages themselves report.
+
+Presentation rules:
+
+- **Report, never advise.** No buy/sell/hold language, no "consider rebalancing", no projections
+  of future return. See §4 non-goals — this is a legal boundary, not a stylistic one.
+- Returns are reported **in the instrument's own currency**. A cross-currency portfolio return is
+  shown only with an explicit, dated FX basis, because currency movement will otherwise dominate
+  and silently misattribute the result.
+- Every figure drills through to the contributing lots.
+
+**US-side coverage is currently zero** — the inbox survey found no US brokerage or retirement
+correspondence. Either those accounts don't exist or their mail goes elsewhere. See §18.
+
+### 9.10 Budgets
+
+Per category, per month, in the account's currency. Optional rollover of unused amounts.
+
+The useful output is not "you have spent 68% of dining" — it's the **projection**: given elapsed
+days, observed run-rate, and known recurring charges still to land, where does this category
+finish the month? That is the number that permits action while action is still possible.
+
+**Budgets are advisory (D13).** They inform the projection and the digest. They never block, never
+nag, and never appear as a red failure state. Budget-shaming is among the best-documented causes of
+PFM abandonment, and this app's whole thesis is that it stays useful past week two.
+
 ---
 
 ## 10. Multi-currency
@@ -505,21 +677,42 @@ Email, sent to self via SMTP. Structure:
 1. **What's coming** — next 14 days of obligations against projected balance. Collisions first.
 2. **What changed** — attribution bridge, top three movers only.
 3. **What's leaking** — new recurring charges, price increases, fees incurred.
-4. **How last month's commitments went** — kept, broken, or verified.
+4. **Where you stand** — net worth with its as-of date and coverage ratio; movement since last week.
+5. **Budgets on track to miss** — projection-based, only categories heading over. Silent otherwise.
+6. **How last month's commitments went** — kept, broken, or verified.
+
+Investment performance is **not** in the weekly digest. Portfolio value is noisy week to week, and
+surfacing it weekly invites exactly the reactive behavior §4 rules out. It lives in the app, and
+appears in a monthly summary.
 
 **Notification budget is the scarcest resource in this product.** Every push must clear the bar:
 *did this tell me something I didn't know, that I can act on?* Failing that bar twice gets the app
 muted forever. Three correct notifications a week beat daily noise.
 
-### 13.2 PWA
+### 13.2 Clients
 
-Installable, offline-capable read view, Tailscale-reachable. Every insight drills through to its
-evidence transactions — **if the UI can't drill in, the insight doesn't ship.**
+Both clients are thin views over the same HTTP API (§6). Screens: **Today** (obligations + safe-to-spend),
+**Debt**, **Net worth**, **Investments**, **Budgets**, **Insights**.
+
+- **PWA** — installable, offline-capable read view, Tailscale-reachable. Ships first (§15).
+- **Native app (Expo)** — same screens, real push, home-screen presence, biometric unlock.
+  Built from the same API once the PWA has proven the intelligence.
+
+**Every insight drills through to its evidence transactions or lots — if the UI can't drill in, the
+insight doesn't ship.** This applies equally to net worth (which accounts, observed when) and to
+returns (which lots, priced at what NAV).
 
 ### 13.3 Push
 
-Self-hosted VAPID web push. Reserved for genuine time-sensitivity: a projected shortfall inside
-72 hours, a failed payment, a free trial converting.
+Web push (VAPID) for the PWA; Expo Push Service → APNs for the native app.
+
+Reserved for genuine time-sensitivity: a projected shortfall inside 72 hours, a failed payment, a
+free trial converting, a detected price increase.
+
+**Portfolio movement never triggers a push.** Not at any threshold. A notification about a
+falling balance is actionable; one about a falling NAV is an invitation to do something unwise, and
+this app does not give investment advice — including by implication, through what it chooses to
+interrupt you about.
 
 ---
 
@@ -541,6 +734,14 @@ Test-driven throughout. Priority order reflects risk, not convenience:
    must always be rejected.
 7. **Currency** — no test may pass if any monetary value is stored as a float or summed across
    currencies without an explicit dated rate.
+8. **Net worth honesty** — property test: for any dataset with a stale or missing balance, the
+   rendered output must carry a coverage ratio below 1.0 and name what's missing. A bare figure is
+   a test failure.
+9. **Investment math** — XIRR verified against known cash-flow series with published answers;
+   units reconstructed from SIP emails asserted equal to a real broker statement; an unpriced
+   instrument must contribute cost basis and never a guessed market value.
+10. **Budget projection** — replay closed months and assert the projection beats naive linear
+    extrapolation, particularly on months containing known recurring charges yet to land.
 
 Test data uses redacted fixtures committed to the repo. **Real account identifiers and balances
 never enter version control.**
@@ -558,11 +759,19 @@ never enter version control.**
 | **4** | Debt map + due-date calendar + **cash-flow timing simulator** | Replays July 2026 and flags the real collision |
 | **5** | Recurring streams, price-step detection, fee ledger | Finds the known subscriptions without being told |
 | **6** | Weekly digest email + PWA read view with drill-through | Digest sends; every insight drills to evidence |
-| **7** | Attribution bridge (India first), commitments, realized-savings ledger | Bridge reconciles: Σ effects = Δtotal, exactly |
-| **8** | Local-model merchant adjudication + narration + numeric guardrail | Guardrail rejects every injected bad figure |
+| **7** | **Net worth** — balance observations, manual assets, coverage ratio, daily snapshot | Number never renders without as-of date + coverage |
+| **8** | Attribution bridge (India first), commitments, realized-savings ledger | Bridge reconciles: Σ effects = Δtotal, exactly |
+| **9** | **Investments** — Groww SIP parser, instrument mapping, AMFI NAV feed, lots, XIRR | Reconstructed units match a broker statement exactly |
+| **10** | **Budgets** — limits, run-rate projection, digest integration | Projection beats naive linear extrapolation on replayed months |
+| **11** | Local-model merchant adjudication + narration + numeric guardrail | Guardrail rejects every injected bad figure |
+| **12** | **Native app (Expo)** — same API, real push, biometric unlock | Ships to the owner's iPhone via TestFlight |
 
-Phase 4 is the earliest point the app is genuinely useful. Everything before it is foundation;
-everything after is compounding.
+**Phase 4 is the earliest point the app is genuinely useful.** Everything before it is foundation;
+everything after compounds.
+
+**Phase 12 is deliberately last.** The $99/yr (§3.1) is committed only after the PWA has proven the
+insights are worth carrying in a pocket. If phases 4–11 don't clear the kill test (§16), the native
+app would be a well-built shell around something not worth opening — and the money is unspent.
 
 ---
 
@@ -593,6 +802,12 @@ commitment has been recorded as kept with a verified saving.
 | Cash-flow projection is wrong because inflow detection is weak | **Medium** | Projections state assumptions inline; low-confidence inputs flagged; manual override for known income |
 | Laptop-uptime dependence makes sync unreliable | **Low** | Cloudflare Workers + D1 path documented in §6.2 |
 | Local model too weak for merchant adjudication | **Low** | Deterministic table handles the bulk; adjudication is the tail only; user correction always wins |
+| **Net worth is confidently wrong** because an asset is stale or invisible | **High** | Coverage ratio mandatory and rendered inline; trend emphasised over level; manual assets explicitly labelled |
+| **Instrument mis-mapping** silently misprices a holding | **High** | Low-confidence matches never auto-applied; unpriced holdings show cost basis only and are flagged |
+| Scope expansion delays the useful core past the point of interest | **Medium** | Phases 1–6 unchanged and still deliver the differentiator; everything new is sequenced after |
+| $99/yr Apple fee spent on an app that isn't worth opening | **Medium** | Native shell is Phase 12, after the kill test; PWA path stays viable at $0 |
+| Groww email format changes and holdings stop accumulating | **Medium** | Same versioned-parser + quarantine discipline as every other parser (§8.3) |
+| AMFI feed format changes or moves | **Low** | Single well-known public file; failure is loud (no NAV → unpriced → flagged), never a wrong price |
 
 ---
 
@@ -602,4 +817,14 @@ commitment has been recorded as kept with a verified saving.
    Phase 3 depends on it. Unverified as of this writing.
 2. **Is there any usable US transaction history before ~Sep 2025?** If a CSV export becomes
    available later, the importer should accept it — the schema already supports it.
-3. **Should the digest be weekly or twice-weekly?** Start weekly; let observed usage decide.
+3. **Does the owner hold any US investments or retirement accounts?** The inbox survey found no US
+   brokerage or retirement correspondence at all. If they exist, either the mail goes elsewhere or
+   e-delivery is off — Phase 9's US coverage depends on the answer.
+4. **Which assets does email genuinely never see?** Property, cash, foreign accounts, employer
+   equity. These need the manual-asset path (§7.2.1); the owner should enumerate them once so the
+   coverage ratio is meaningful from day one.
+5. **Is the $99/yr Apple Developer fee accepted?** §3.1. This spec proceeds as though it is, but the
+   build order defers the commitment to Phase 12 so the decision can be made late.
+6. **Does "etc." include the credit score?** This spec reads it as *not* including it, for the CROA
+   reason in §3. Confirm or overturn.
+7. **Should the digest be weekly or twice-weekly?** Start weekly; let observed usage decide.
