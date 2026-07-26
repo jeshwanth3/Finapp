@@ -96,7 +96,7 @@ The owner's stated constraint was zero recurring cost (D4). A **native iOS app b
 |---|---|---|
 | Apple Developer Program | **$99/yr** | No — required to install on a physical iPhone beyond 7-day sideload |
 | Google Play Console | $25 one-time | Yes, if Android isn't needed |
-| EAS Build (cloud builds from Windows) | $0 on the free tier | Free tier is queue-limited, not feature-limited |
+| Cloud iOS build (Codemagic / GitHub Actions macOS runner) | $0 on free tiers | Compiles on hosted macOS. **No Mac required at any point.** |
 
 Everything else in this design remains $0. **The honest position: v1 now costs $99/yr, entirely
 because of iOS.** Three ways to respond, owner's call:
@@ -149,7 +149,7 @@ is built** (§15), which keeps option 3 live at no extra cost if the $99 turns o
 | D3 | File/PDF import as the historical spine | Defeats all cold-start gates; SBI PDFs give 3.5 years free |
 | D4 | Zero recurring cost | Owner constraint. Costs little — the differentiator is arithmetic, not AI |
 | D5 | Local-first, local model | Free and private converge on the same architecture |
-| D6 | ~~PWA only~~ → **PWA first, then native app via Expo** *(revised 2026-07-25)* | Owner asked for a mobile app in v1. PWA still ships first so the intelligence is proven before $99/yr is spent |
+| D6 | ~~PWA only~~ → ~~PWA then Expo~~ → **PWA, then wrap it with Capacitor** *(revised twice, 2026-07-26)* | Owner asked for a mobile app in v1. Capacitor ships the *same web build* in a native shell — Expo would mean rebuilding every screen in React Native. See §6.3 |
 | D7 | Dual-currency as a first-class concept | Not a flag. The owner's financial life is genuinely in two currencies |
 | D8 | Statements are authoritative; alerts are provisional | Reconciliation rule that makes the two-source model coherent |
 | D9 | No credit score, ever | See §3 |
@@ -192,14 +192,15 @@ nothing below it knows what the data means.
 └──────────────────────────┬─────────────────────────────────┘
                            │  facts, never re-derived
 ┌─ DELIVERY ───────────────▼─────────────────────────────────┐
-│  weekly digest (email) · PWA · native app (Expo) · push      │
+│  weekly digest (email) · PWA · native shell (Capacitor) · push│
 │  Q&A (v1.1)                                                  │
 └────────────────────────────────────────────────────────────┘
 ```
 
-**One API, two clients.** The PWA and the native app are both thin clients over the same HTTP API.
-No business logic lives in either. This is what makes the native shell a re-skin rather than a
-rewrite — and what keeps option 3 in §3.1 available at zero cost.
+**One API, one client, two shells.** The native app is not a second client — it is the *same web
+build* running inside a native container (§6.3). No business logic lives in either shell. This is
+what makes the native app a packaging step rather than a rewrite, and what keeps option 3 in §3.1
+available at zero cost.
 
 ### 6.1 Region portability
 
@@ -225,16 +226,57 @@ general-purpose field or the parser drops it.
 | PDF | `pdfjs-dist` with password support | Indian statements are commonly password-protected |
 | Jobs | `node-cron` in-process | Single machine, no queue needed |
 | Local model | Ollama, 8–14B quantized | RTX 5070 Ti Laptop (12GB) handles this comfortably |
-| **Mobile** | **Expo (React Native) + EAS Build** | Cloud builds work from Windows — no Mac, no Xcode. One codebase, both platforms |
+| **Mobile** | **Capacitor** (wraps the PWA build) | Ships the identical web UI in a native shell. Native push, biometrics, and secure storage via plugins |
 | Phone access | Tailscale | Both clients reach the laptop anywhere, no port forwarding, no public exposure |
 | **Price data** | **AMFI daily NAV file (free, public)**; FX from a free daily rates source | Prices every Indian mutual fund exactly, at zero cost |
 | Digest delivery | Gmail SMTP to self | Free, reliable |
 | Push (web) | Self-hosted VAPID web push | Free; iOS 16.4+ supports it for installed PWAs |
-| Push (native) | Expo Push Service → APNs / FCM | Free; more reliable than iOS web push |
+| Push (native) | Capacitor Push Notifications → APNs / FCM | Free; more reliable than iOS web push |
 
 **Deferred alternative:** if laptop-uptime dependence becomes annoying, the always-on path is
 Cloudflare Workers + D1 + Cron Triggers, with merchant adjudication batched to whenever the laptop
 is awake. Not built in v1.
+
+### 6.3 Shipping iOS from a Windows machine
+
+The owner develops on Windows 11 and carries an iPhone. Xcode is macOS-only, so this constrains the
+mobile choice — but it does **not** require owning a Mac at any point.
+
+**Why Capacitor and not Expo/React Native.** An earlier revision of this spec chose Expo and
+justified it as "a re-skin, not a rewrite." That was wrong. React Native components are not DOM —
+choosing Expo means rebuilding every screen, and only the API client survives. Capacitor wraps the
+**existing PWA build** in a native shell: same HTML, same CSS, same components, plus native push,
+biometrics, and secure storage through plugins.
+
+The cost is that it renders in a webview, so scroll physics and transitions are marginally less
+native than a true RN app. For this product — balances, calendars, tables, two charts — that
+difference is imperceptible. For a gesture-heavy consumer app it would not be, and this decision
+should be revisited if the UI ever becomes animation-led.
+
+**The Windows toolchain, in order of when it's needed:**
+
+| Stage | Tool | Mac needed? | Cost |
+|---|---|---|---|
+| Daily development | Browser + `next dev`. The PWA *is* the app | No | $0 |
+| Testing on the phone | Installed PWA over Tailscale | No | $0 |
+| Native shell build | Capacitor + hosted macOS CI (Codemagic or a GitHub Actions macOS runner) | No — compiles in the cloud | $0 on free tiers |
+| Installing on the iPhone | TestFlight (needs the Apple Developer Program) | No | $99/yr |
+| Free alternative to TestFlight | Free Apple ID + AltStore/SideStore, refreshed by AltServer on Windows | No | $0 |
+
+The free-provisioning path is real and legal: Apple issues 7-day certificates to free accounts, and
+AltServer running on Windows re-signs over WiFi before they expire. Capped at three sideloaded apps
+and fiddly to keep alive. **The $99 buys reliability, not capability** — which is why §3.1 leaves
+the decision open until Phase 12.
+
+**Windows-specific gotchas, worth configuring before there is a codebase:**
+
+- **Do not run the dev server from WSL2.** The phone cannot reach Metro/Next across the WSL network
+  boundary without port-forwarding work. Run natively on Windows.
+- **Enable long paths** — `git config --global core.longpaths true` plus the Windows registry
+  setting. `node_modules` routinely exceeds the 260-character limit.
+- **Set `core.autocrlf` deliberately now.** The repo has already produced LF→CRLF warnings; deciding
+  this after there are source files is worse.
+- Watchman is macOS/Linux only. Not a problem — the bundler falls back to its own watcher.
 
 ---
 
@@ -695,8 +737,9 @@ Both clients are thin views over the same HTTP API (§6). Screens: **Today** (ob
 **Debt**, **Net worth**, **Investments**, **Budgets**, **Insights**.
 
 - **PWA** — installable, offline-capable read view, Tailscale-reachable. Ships first (§15).
-- **Native app (Expo)** — same screens, real push, home-screen presence, biometric unlock.
-  Built from the same API once the PWA has proven the intelligence.
+- **Native app (Capacitor)** — the same web build in a native shell: real push, home-screen
+  presence, biometric unlock, secure token storage. Packaged once the PWA has proven the
+  intelligence. No screens are rewritten.
 
 **Every insight drills through to its evidence transactions or lots — if the UI can't drill in, the
 insight doesn't ship.** This applies equally to net worth (which accounts, observed when) and to
@@ -704,7 +747,7 @@ returns (which lots, priced at what NAV).
 
 ### 13.3 Push
 
-Web push (VAPID) for the PWA; Expo Push Service → APNs for the native app.
+Web push (VAPID) for the PWA; Capacitor Push Notifications → APNs for the native app.
 
 Reserved for genuine time-sensitivity: a projected shortfall inside 72 hours, a failed payment, a
 free trial converting, a detected price increase.
@@ -764,7 +807,7 @@ never enter version control.**
 | **9** | **Investments** — Groww SIP parser, instrument mapping, AMFI NAV feed, lots, XIRR | Reconstructed units match a broker statement exactly |
 | **10** | **Budgets** — limits, run-rate projection, digest integration | Projection beats naive linear extrapolation on replayed months |
 | **11** | Local-model merchant adjudication + narration + numeric guardrail | Guardrail rejects every injected bad figure |
-| **12** | **Native app (Expo)** — same API, real push, biometric unlock | Ships to the owner's iPhone via TestFlight |
+| **12** | **Native shell (Capacitor)** — wrap the PWA, native push, biometric unlock, cloud iOS build | Installs on the owner's iPhone and survives a reboot without a laptop |
 
 **Phase 4 is the earliest point the app is genuinely useful.** Everything before it is foundation;
 everything after compounds.
