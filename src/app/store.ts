@@ -15,7 +15,7 @@ import { createRepositories, type Repositories } from '@/db/repositories'
 import { money, type Money } from '@/core/money'
 import type { DebtAccount } from '@/engine/debt-map'
 import type { CashFlowRequest, Obligation } from '@/engine/cash-flow'
-import { seedDatabase } from '@/db/seed'
+import { seedOpenDatabase } from '@/db/seed'
 
 /**
  * Returns an opened database and its repository set.
@@ -29,19 +29,12 @@ export function withStore<T>(fn: (repos: Repositories) => T, dbPath = './finapp.
 
   try {
     migrate(db)
-    const repos = createRepositories(db)
+    let repos = createRepositories(db)
     // If empty (e.g. fresh memory DB), seed it
     const accounts = repos.accounts.list()
     if (accounts.length === 0) {
-      // Close and seed via seedDatabase logic
-      closeDatabase(db)
-      if (!isFilePresent) {
-        // Seed directly into this path
-        seedDatabase(dbPath)
-      } else {
-        seedDatabase(dbPath)
-      }
-      return withStore(fn, dbPath)
+      seedOpenDatabase(db)
+      repos = createRepositories(db)
     }
     return fn(repos)
   } finally {
