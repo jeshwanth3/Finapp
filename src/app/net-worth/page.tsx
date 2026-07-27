@@ -1,6 +1,19 @@
 import { Money } from '@/components/Money'
+import { CoverageMeter, computeCoverage } from '@/components/CoverageMeter'
 import { getStoreAccounts } from '@/app/store'
 import { money, subtract, sum } from '@/core/money'
+
+const TODAY = '2026-07-26'
+
+/**
+ * Assets this app knows exist but cannot see, per currency. Declared explicitly
+ * so they count against the coverage denominator instead of being silently
+ * absent — an unknown unknown is what makes a net worth confidently wrong.
+ */
+const UNSEEN_ASSETS: Record<string, readonly string[]> = {
+  USD: ['Employer equity (never entered)'],
+  INR: ['India savings account (no email)'],
+}
 
 function formatDay(iso: string): string {
   const [year, month, day] = iso.split('-').map(Number)
@@ -30,10 +43,8 @@ export default function NetWorthPage() {
     const totalLiabilities = sum(liabilities.map((a) => a.statementBalance ?? a.balance), curr)
     const netWorth = subtract(totalAssets, totalLiabilities)
 
-    const latestObs = matching.reduce((latest, a) =>
-      a.lastObservedAt > latest ? a.lastObservedAt : latest,
-      '2026-07-25'
-    )
+    // Derived from the accounts actually feeding this figure, not asserted.
+    const coverage = computeCoverage(matching, TODAY, UNSEEN_ASSETS[curr] ?? [])
 
     return {
       currency: curr,
@@ -41,12 +52,7 @@ export default function NetWorthPage() {
       totalLiabilities,
       netWorth,
       accountCount: matching.length,
-      asOf: latestObs,
-      coverageRatio: 72, // Canonical 72% coverage ratio (spec §9.8)
-      missingAccounts: [
-        'Employer equity (never entered)',
-        'India savings account (no email)',
-      ],
+      coverage,
       accounts: matching,
     }
   })
@@ -80,17 +86,11 @@ export default function NetWorthPage() {
               <div className="big-number num">
                 <Money value={summary.netWorth} />
               </div>
-              <div className="hint">
-                Assets: <Money value={summary.totalAssets} /> · Liabilities: <Money value={summary.totalLiabilities} /> · Coverage: {summary.coverageRatio}% as of {formatDay(summary.asOf)}
+              <div className="hint" style={{ marginTop: 'var(--sp-1)' }}>
+                Assets <Money value={summary.totalAssets} /> · Liabilities{' '}
+                <Money value={summary.totalLiabilities} />
               </div>
-              <div style={{ marginTop: 'var(--sp-2)', fontSize: 13, color: 'var(--text-muted)' }}>
-                <strong>Unobserved missing accounts:</strong>
-                <ul style={{ margin: '4px 0 0', paddingLeft: 16 }}>
-                  {summary.missingAccounts.map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ul>
-              </div>
+              <CoverageMeter coverage={summary.coverage} />
             </div>
           ))}
         </div>
