@@ -1,0 +1,475 @@
+/*
+ * Finapp design tokens.
+ * Mobile-first: every rule is written for a phone, then widened at breakpoints.
+ * Light and dark both supported — this app is opened at 7am and at midnight.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* Surfaces */
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --surface-2: #f0f0ed;
+  --border: #e2e2dd;
+  --border-strong: #cfcfc8;
+
+  /* Text */
+  --text: #16161a;
+  --text-muted: #6b6b73;
+  --text-faint: #96969e;
+
+  /* Semantics — money has direction, and it must survive colour-blindness,
+     so every use is paired with a sign or a label, never colour alone. */
+  --pos: #0f7a4d;
+  --pos-bg: #e6f4ec;
+  --neg: #b3261e;
+  --neg-bg: #fbeae9;
+  --warn: #8a5a00;
+  --warn-bg: #fdf3e2;
+  --info: #1b4f9c;
+  --info-bg: #e8f0fb;
+
+  --accent: #16161a;
+
+  /* Type scale */
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+
+  /* Spacing */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+
+  /* Safe areas for iOS home-screen install */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  --nav-height: 56px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0e11;
+    --surface: #17171b;
+    --surface-2: #1f1f25;
+    --border: #2a2a31;
+    --border-strong: #3a3a44;
+
+    --text: #f2f2f4;
+    --text-muted: #a0a0aa;
+    --text-faint: #70707a;
+
+    --pos: #4ade80;
+    --pos-bg: #10281c;
+    --neg: #f87171;
+    --neg-bg: #2b1416;
+    --warn: #fbbf24;
+    --warn-bg: #2a2010;
+    --info: #7dabf8;
+    --info-bg: #14203a;
+
+    --accent: #f2f2f4;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  /* Room for the fixed bottom nav on mobile. */
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom));
+}
+
+@media (min-width: 768px) {
+  body {
+    padding-bottom: 0;
+  }
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Tabular figures everywhere money appears — columns must align. */
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Layout ---------- */
+
+.app-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--sp-4);
+}
+
+@media (min-width: 768px) {
+  .app-shell {
+    padding: 0 var(--sp-5);
+  }
+}
+
+.page-header {
+  padding: calc(var(--safe-top) + var(--sp-5)) 0 var(--sp-4);
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 640;
+}
+
+.page-sub {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: var(--sp-1);
+}
+
+.section {
+  margin-bottom: var(--sp-6);
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 640;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+}
+
+/* ---------- Card ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+}
+
+.card + .card {
+  margin-top: var(--sp-3);
+}
+
+.card-tight {
+  padding: var(--sp-3) var(--sp-4);
+}
+
+/* ---------- Grid ---------- */
+
+.grid {
+  display: grid;
+  gap: var(--sp-3);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 600px) {
+  .grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ---------- Rows ---------- */
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--border);
+  min-height: 44px; /* touch target */
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.row-title {
+  font-weight: 520;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-sub {
+  color: var(--text-muted);
+  font-size: 12.5px;
+  margin-top: 1px;
+}
+
+.row-value {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---------- Money semantics ---------- */
+
+.pos {
+  color: var(--pos);
+}
+
+.neg {
+  color: var(--neg);
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.faint {
+  color: var(--text-faint);
+}
+
+/* ---------- Pills / badges ---------- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.pill-warn {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+
+.pill-neg {
+  background: var(--neg-bg);
+  color: var(--neg);
+}
+
+.pill-pos {
+  background: var(--pos-bg);
+  color: var(--pos);
+}
+
+.pill-info {
+  background: var(--info-bg);
+  color: var(--info);
+}
+
+.pill-neutral {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+/* ---------- Alert block ---------- */
+
+.alert {
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+  border: 1px solid transparent;
+}
+
+.alert-neg {
+  background: var(--neg-bg);
+  border-color: color-mix(in srgb, var(--neg) 25%, transparent);
+}
+
+.alert-warn {
+  background: var(--warn-bg);
+  border-color: color-mix(in srgb, var(--warn) 25%, transparent);
+}
+
+.alert-title {
+  font-weight: 640;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.alert-body {
+  margin-top: var(--sp-2);
+  font-size: 14px;
+}
+
+/* ---------- Coverage bar (net worth honesty, spec §9.8) ---------- */
+
+.coverage {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.coverage-track {
+  flex: 1;
+  height: 4px;
+  background: var(--surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+  max-width: 140px;
+}
+
+.coverage-fill {
+  height: 100%;
+  background: var(--info);
+}
+
+/* ---------- Bottom nav (mobile) / top tabs (desktop) ---------- */
+
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--nav-height) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 50;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 10.5px;
+  font-weight: 560;
+  color: var(--text-faint);
+  min-width: 0;
+}
+
+.nav-item[data-active='true'] {
+  color: var(--accent);
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .nav {
+    position: sticky;
+    top: 0;
+    bottom: auto;
+    height: auto;
+    padding: 0;
+    border-top: none;
+    border-bottom: 1px solid var(--border);
+    max-width: 1100px;
+    margin: 0 auto;
+    gap: var(--sp-1);
+    padding: var(--sp-2) var(--sp-5);
+  }
+
+  .nav-item {
+    flex: 0 0 auto;
+    flex-direction: row;
+    gap: var(--sp-2);
+    font-size: 13.5px;
+    padding: var(--sp-2) var(--sp-3);
+    border-radius: var(--radius-sm);
+  }
+
+  .nav-item[data-active='true'] {
+    background: var(--surface-2);
+  }
+}
+
+/* ---------- Utility ---------- */
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.inline {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.big-number {
+  font-size: 32px;
+  font-weight: 660;
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 600px) {
+  .big-number {
+    font-size: 38px;
+  }
+}
+
+.hint {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.empty {
+  padding: var(--sp-6) var(--sp-4);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
