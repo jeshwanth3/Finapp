@@ -1,6 +1,8 @@
 import styles from './landing.module.css'
 
-const companies = ['Northwind', 'Kettle', 'Superbloom', 'Halcyon', 'Fieldwork']
+// Institutions Finapp already has parsers for. Real capability beats invented
+// customer logos — this row tells a visitor whether their bank is covered.
+const institutions = ['Chase', 'Amex', 'Discover', 'US Bank', 'SBI Card', 'Zolve']
 
 function LogoMark() {
   return (
@@ -126,51 +128,51 @@ export default function LandingPage() {
 
         <div className={styles.heroGrid} id="top">
           <div className={styles.heroCopy}>
-            <p className={styles.eyebrow}><span /> NEW · Plans that make sense</p>
-            <h1>Make money moves that <span className={`${styles.highlight} ${styles.mustard}`}>actually</span> get <span className={`${styles.highlight} ${styles.teal}`}>done.</span></h1>
-            <p className={styles.lede}>Finapp turns your cross-border cash flow, bills, and debt into a clear plan you can act on today.</p>
+            <p className={styles.eyebrow}><span /> USD + INR · No bank login required</p>
+            <h1>Spot the shortfall <span className={`${styles.highlight} ${styles.mustard}`}>before</span> your bank <span className={`${styles.highlight} ${styles.teal}`}>does.</span></h1>
+            <p className={styles.lede}>Finapp reads the statement and alert emails you already get, then does the arithmetic you cannot do in your head: seven accounts, two currencies, six due dates, one thin checking balance.</p>
             <div className={styles.actions}>
-              <a className={`${styles.button} ${styles.primaryCta}`} href="/demo">See demo data <span aria-hidden="true">→</span></a>
-              <a className={`${styles.button} ${styles.secondaryCta}`} href="#features">See how it works <span aria-hidden="true">↗</span></a>
+              <a className={`${styles.button} ${styles.primaryCta}`} href="/demo">Open the demo <span aria-hidden="true">→</span></a>
+              <a className={`${styles.button} ${styles.secondaryCta}`} href="#features">How it works <span aria-hidden="true">↗</span></a>
             </div>
             <div className={styles.trustRow}>
-              <div className={styles.avatars} aria-hidden="true"><span>J</span><span>A</span><span>M</span><span>K</span></div>
-              <p><strong>12,000+ people</strong> are making their money feel less mysterious.<br />No credit card. No meetings about spreadsheets.</p>
+              <div className={styles.avatars} aria-hidden="true"><span>$</span><span>₹</span><span>7</span><span>0</span></div>
+              <p><strong>Built after a $941 bill bounced twice</strong>, three days after a $2,500 card payment cleared.<br />No aggregator, no bank credentials, no monthly fee.</p>
             </div>
           </div>
           <DashboardMockup />
         </div>
       </section>
 
-      <section className={styles.logoStrip} aria-label="Trusted by teams at">
-        <span>Trusted by people at</span>
-        <div>{companies.map((company) => <b key={company}>{company}</b>)}</div>
+      <section className={styles.logoStrip} aria-label="Institutions Finapp can read">
+        <span>Reads statements from</span>
+        <div>{institutions.map((name) => <b key={name}>{name}</b>)}</div>
       </section>
 
       <section className={styles.features} id="features">
-        <p className={styles.featureEyebrow}>WHY PEOPLE SWITCH</p>
-        <h2>Money admin kills momentum.<br />Finapp keeps it moving.</h2>
+        <p className={styles.featureEyebrow}>HOW IT WORKS</p>
+        <h2>Your inbox already knows.<br />Finapp does the arithmetic.</h2>
         <div className={styles.featureGrid}>
           <article className={`${styles.featureCard} ${styles.coralCard}`}>
             <span className={styles.iconChip}><FeatureIcon kind="path" /></span>
-            <h3>Plans that flow</h3>
-            <p>Know what arrives, what leaves, and what you can safely do next, all in one practical view.</p>
+            <h3>Your email, not your login</h3>
+            <p>No aggregator, no bank credentials, nothing to breach. Finapp parses the alerts and statements your banks already send you.</p>
           </article>
           <article className={`${styles.featureCard} ${styles.tealCard}`}>
             <span className={styles.iconChip}><FeatureIcon kind="pulse" /></span>
-            <h3>Progress you can see</h3>
-            <p>See debt balances shrink and your future balance stay healthy before surprise bills get a vote.</p>
+            <h3>The collision, not the category</h3>
+            <p>It projects your balance forward day by day, names the date it goes short, then tells you which single payment to move to clear it.</p>
           </article>
           <article className={`${styles.featureCard} ${styles.violetCard}`}>
             <span className={styles.iconChip}><FeatureIcon kind="team" /></span>
-            <h3>Built for real life</h3>
-            <p>Track multiple currencies, shared obligations, and the kind of timing that makes budgeting hard.</p>
+            <h3>Two currencies, never blended</h3>
+            <p>Dollars and rupees are tracked separately and never silently summed. A total you cannot verify is worse than no total at all.</p>
           </article>
         </div>
       </section>
 
       <section className={styles.closing} id="plans">
-        <div><p>YOUR NEXT MOVE, CLEARER</p><h2>Make a plan you’ll want to follow.</h2></div>
+        <div><p>EVERY NUMBER OPENS</p><h2>No figure you cannot trace back to the email it came from.</h2></div>
         <a className={`${styles.button} ${styles.primaryCta}`} href="/demo">Open the demo <span aria-hidden="true">→</span></a>
       </section>
     </div>
