@@ -14,7 +14,7 @@
  */
 
 import { createHash } from 'node:crypto'
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import type { Database } from './sqlite'
@@ -57,6 +57,11 @@ export class MigrationChecksumError extends MigrationError {
         `to ${actual}; migrations are immutable once applied — add a new one instead`,
     )
   }
+}
+
+/** Thrown when baseline schema application fails. */
+export class BaselineError extends MigrationError {
+  override readonly name = 'BaselineError'
 }
 
 /** The database records a version that no longer exists on disk. */
@@ -137,7 +142,15 @@ function checksumOf(sql: string): string {
 }
 
 function moduleDir(): string {
-  return fileURLToPath(new URL('.', import.meta.url))
+  const cwdDir = join(process.cwd(), 'src', 'db')
+  if (existsSync(join(cwdDir, 'schema.sql'))) {
+    return cwdDir
+  }
+  try {
+    return fileURLToPath(new URL('.', import.meta.url))
+  } catch {
+    return typeof __dirname !== 'undefined' ? __dirname : cwdDir
+  }
 }
 
 /** Read `schema.sql` — migration 1, the baseline every database starts from. */

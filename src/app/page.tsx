@@ -67,7 +67,7 @@ function DashboardMockup() {
   ]
 
   return (
-    <aside className={styles.dashboard} aria-label="Finap dashboard preview">
+    <aside className={styles.dashboard} aria-label="Finapp dashboard preview">
       <div className={styles.browserBar}>
         <span className={styles.browserDots} aria-hidden="true"><i /><i /><i /></span>
         <strong>Demo data · Today</strong>
@@ -114,7 +114,7 @@ export default function LandingPage() {
       <section className={styles.hero}>
         <Decorations />
         <nav className={styles.topNav} aria-label="Marketing">
-          <a className={styles.brand} href="#top" aria-label="Finap home"><LogoMark /><span>Finap</span></a>
+          <a className={styles.brand} href="#top" aria-label="Finapp home"><LogoMark /><span>Finapp</span></a>
           <div className={styles.navLinks}>
             <a href="#product">Product</a>
             <a href="#features">Features</a>
@@ -128,7 +128,7 @@ export default function LandingPage() {
           <div className={styles.heroCopy}>
             <p className={styles.eyebrow}><span /> NEW · Plans that make sense</p>
             <h1>Make money moves that <span className={`${styles.highlight} ${styles.mustard}`}>actually</span> get <span className={`${styles.highlight} ${styles.teal}`}>done.</span></h1>
-            <p className={styles.lede}>Finap turns your cross-border cash flow, bills, and debt into a clear plan you can act on today.</p>
+            <p className={styles.lede}>Finapp turns your cross-border cash flow, bills, and debt into a clear plan you can act on today.</p>
             <div className={styles.actions}>
               <a className={`${styles.button} ${styles.primaryCta}`} href="/demo">See demo data <span aria-hidden="true">→</span></a>
               <a className={`${styles.button} ${styles.secondaryCta}`} href="#features">See how it works <span aria-hidden="true">↗</span></a>
@@ -149,7 +149,7 @@ export default function LandingPage() {
 
       <section className={styles.features} id="features">
         <p className={styles.featureEyebrow}>WHY PEOPLE SWITCH</p>
-        <h2>Money admin kills momentum.<br />Finap keeps it moving.</h2>
+        <h2>Money admin kills momentum.<br />Finapp keeps it moving.</h2>
         <div className={styles.featureGrid}>
           <article className={`${styles.featureCard} ${styles.coralCard}`}>
             <span className={styles.iconChip}><FeatureIcon kind="path" /></span>
