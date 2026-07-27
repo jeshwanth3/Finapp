@@ -6,18 +6,16 @@
  */
 
 import { openDatabase, closeDatabase, withTransaction } from './db'
+import type { Database } from './sqlite'
 import { migrate } from './migrate'
 import { createRepositories } from './repositories'
 import { money } from '../core/money'
 
-export function seedDatabase(dbPath = './finapp.db'): void {
-  const db = openDatabase({ path: dbPath, createDirectory: true })
+export function seedOpenDatabase(db: Database): void {
+  migrate(db)
+  const repos = createRepositories(db)
 
-  try {
-    migrate(db)
-    const repos = createRepositories(db)
-
-    withTransaction(db, () => {
+  withTransaction(db, () => {
       const existing = repos.accounts.findById('acct-checking')
       if (existing) {
         return
@@ -236,7 +234,14 @@ export function seedDatabase(dbPath = './finapp.db'): void {
         statementId: stmtSbi.id,
         confidence: 1.0,
       })
-    })
+  })
+}
+
+export function seedDatabase(dbPath = './finapp.db'): void {
+  const db = openDatabase({ path: dbPath, createDirectory: true })
+
+  try {
+    seedOpenDatabase(db)
   } finally {
     closeDatabase(db)
   }
