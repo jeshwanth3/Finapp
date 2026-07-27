@@ -1,86 +1,181 @@
-/*
- * Finapp design tokens.
- * Mobile-first: every rule is written for a phone, then widened at breakpoints.
- * Light and dark both supported — this app is opened at 7am and at midnight.
- */
+/* =============================================================================
+   Finapp design system — "Ledger"
+   Drop-in replacement for src/app/globals.css. Every class name in the previous
+   file still exists, so no .tsx has to change to adopt this.
+
+   Mobile-first: every rule is written for 375px, then widened.
+   Light and dark both: this app is opened at 7am and at midnight.
+   No dependencies. Plain CSS + inline SVG.
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   1. TOKENS — LIGHT (default)
+   Neutrals are never grey. Every one carries hue 222–232, so the whole surface
+   reads as ink on porcelain rather than as a spreadsheet.
+   -------------------------------------------------------------------------- */
 
 :root {
   color-scheme: light dark;
 
-  /* Surfaces */
-  --bg: #f7f7f5;
-  --surface: #ffffff;
-  --surface-2: #f0f0ed;
-  --border: #e2e2dd;
-  --border-strong: #cfcfc8;
+  /* Surfaces. The card is always the LIT surface — lighter than the page in
+     light mode, lighter than the page in dark mode. One mental model. */
+  --bg:            #edf0f5;
+  --surface:       #ffffff;
+  --surface-2:     #f4f6fa;   /* inset panels, meter tracks, neutral pills */
+  --surface-3:     #e4e9f1;   /* pressed / hover on surface-2 */
+
+  --border:        #dee4ed;   /* decorative hairline */
+  --border-strong: #c6cedb;   /* dividers that must read as structure */
+  --border-control:#767f92;   /* inputs, checkboxes: WCAG 1.4.11 boundary */
 
   /* Text */
-  --text: #16161a;
-  --text-muted: #6b6b73;
-  --text-faint: #96969e;
+  --text:       #10151f;
+  --text-muted: #55607a;
+  --text-faint: #5f6982;
 
-  /* Semantics — money has direction, and it must survive colour-blindness,
-     so every use is paired with a sign or a label, never colour alone. */
-  --pos: #0f7a4d;
-  --pos-bg: #e6f4ec;
-  --neg: #b3261e;
-  --neg-bg: #fbeae9;
-  --warn: #8a5a00;
-  --warn-bg: #fdf3e2;
-  --info: #1b4f9c;
-  --info-bg: #e8f0fb;
+  /* Ink = the interactive/brand colour. Deliberately NOT a fifth hue:
+     the four money semantics own colour in this app, and a brand hue would
+     compete with them at exactly the moment one of them matters. */
+  --ink:    #10151f;
+  --on-ink: #ffffff;
 
-  --accent: #16161a;
+  /* Money semantics. Colour is never the only carrier — every use is paired
+     with a sign, a word, or a shape. ~8% of men cannot rely on red/green. */
+  --pos:      #06663f;
+  --pos-bg:   #e4f2eb;
+  --pos-line: #b9dfcc;
 
-  /* Type scale */
-  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  --neg:      #b3221b;
+  --neg-bg:   #fceae8;
+  --neg-line: #f2c4c0;
 
-  /* Spacing */
-  --sp-1: 4px;
-  --sp-2: 8px;
-  --sp-3: 12px;
-  --sp-4: 16px;
-  --sp-5: 24px;
-  --sp-6: 32px;
-  --sp-7: 48px;
+  --warn:      #855200;
+  --warn-bg:   #fbf0dc;
+  --warn-line: #ebd3a2;
 
-  --radius: 12px;
-  --radius-sm: 8px;
+  --info:      #1a4fa0;
+  --info-bg:   #e7effc;
+  --info-line: #bfd4f5;
 
-  /* Safe areas for iOS home-screen install */
+  --focus: #1a4fa0;
+
+  /* Elevation. In light mode a card separates by fill + hairline + soft shadow. */
+  --elev-1: 0 1px 2px rgba(16, 21, 31, 0.05), 0 0 0 1px rgba(16, 21, 31, 0.04);
+  --elev-2: 0 2px 6px -1px rgba(16, 21, 31, 0.07), 0 12px 24px -12px rgba(16, 21, 31, 0.16);
+  --elev-3: 0 -1px 0 rgba(16, 21, 31, 0.06), 0 -12px 32px -16px rgba(16, 21, 31, 0.22);
+  --hairline-top: none;
+
+  /* Type */
+  --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text",
+          "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+
+  --fs-micro:     11px;  --lh-micro:     14px;
+  --fs-caption:   12px;  --lh-caption:   16px;
+  --fs-small:     13px;  --lh-small:     18px;
+  --fs-body:      15px;  --lh-body:      22px;
+  --fs-body-lg:   17px;  --lh-body-lg:   24px;
+  --fs-h3:        20px;  --lh-h3:        26px;
+  --fs-h2:        24px;  --lh-h2:        30px;
+  --fs-h1:        30px;  --lh-h1:        34px;
+  --fs-display-2: 34px;  --lh-display-2: 36px;
+
+  /* Space */
+  --sp-1: 2px;
+  --sp-2: 4px;
+  --sp-3: 8px;
+  --sp-4: 12px;
+  --sp-5: 16px;
+  --sp-6: 20px;
+  --sp-7: 24px;
+  --sp-8: 32px;
+  --sp-9: 40px;
+  --sp-10: 56px;
+  --sp-11: 72px;
+
+  /* Radius. Nesting rule: inner = outer − padding, floor 6px. */
+  --r-1: 6px;
+  --r-2: 10px;
+  --r-3: 14px;
+  --r-4: 20px;
+  --r-full: 999px;
+
+  /* Motion */
+  --dur-instant: 90ms;
+  --dur-fast: 140ms;
+  --dur-base: 200ms;
+  --dur-slow: 300ms;
+  --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.5, 0, 1, 1);
+
+  /* Safe areas — this installs to an iPhone Home Screen. */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 
-  --nav-height: 56px;
+  --nav-h: 60px;
+  --gutter: var(--sp-6);
+  --shell-max: 1120px;
 }
+
+/* -----------------------------------------------------------------------------
+   2. TOKENS — DARK
+   Deep navy-black, not neutral black. Shadows are invisible on a dark canvas,
+   so a card separates by fill step + border + a 1px top highlight.
+   -------------------------------------------------------------------------- */
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0e0e11;
-    --surface: #17171b;
-    --surface-2: #1f1f25;
-    --border: #2a2a31;
-    --border-strong: #3a3a44;
+    --bg:        #070910;
+    --surface:   #151a28;
+    --surface-2: #1d2333;
+    --surface-3: #262d40;
 
-    --text: #f2f2f4;
-    --text-muted: #a0a0aa;
-    --text-faint: #70707a;
+    --border:         #262d3e;
+    --border-strong:  #38415a;
+    --border-control: #616d85;
 
-    --pos: #4ade80;
-    --pos-bg: #10281c;
-    --neg: #f87171;
-    --neg-bg: #2b1416;
-    --warn: #fbbf24;
-    --warn-bg: #2a2010;
-    --info: #7dabf8;
-    --info-bg: #14203a;
+    --text:       #edf1f8;
+    --text-muted: #a3adc2;
+    --text-faint: #848fa5;
 
-    --accent: #f2f2f4;
+    --ink:    #edf1f8;
+    --on-ink: #070910;
+
+    --pos:      #46d6a2;
+    --pos-bg:   #0b241c;
+    --pos-line: #1c4a3a;
+
+    --neg:      #ff8078;
+    --neg-bg:   #2a1315;
+    --neg-line: #58262a;
+
+    --warn:      #f2b84b;
+    --warn-bg:   #2a2011;
+    --warn-line: #55401a;
+
+    --info:      #82b4ff;
+    --info-bg:   #12203a;
+    --info-line: #26406b;
+
+    --focus: #82b4ff;
+
+    --elev-1: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --elev-2: 0 2px 6px rgba(0, 0, 0, 0.55), 0 16px 32px -18px rgba(0, 0, 0, 0.9);
+    --elev-3: 0 -1px 0 rgba(255, 255, 255, 0.05), 0 -16px 40px -20px rgba(0, 0, 0, 0.9);
+    --hairline-top: inset 0 1px 0 rgba(255, 255, 255, 0.05);
   }
 }
 
-* {
+/* -----------------------------------------------------------------------------
+   3. RESET + BASE
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -90,15 +185,25 @@ body {
   padding: 0;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
-  /* Room for the fixed bottom nav on mobile. */
-  padding-bottom: calc(var(--nav-height) + var(--safe-bottom));
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Room for the fixed bottom nav on phones. */
+  padding-bottom: calc(var(--nav-h) + var(--safe-bottom));
+  /* Rubber-band overscroll shows the page colour, not white. */
+  overscroll-behavior-y: none;
 }
 
 @media (min-width: 768px) {
@@ -107,12 +212,19 @@ body {
   }
 }
 
-h1,
-h2,
-h3 {
+h1, h2, h3, h4, p, ol, ul, figure {
   margin: 0;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
+}
+
+ol, ul {
+  padding: 0;
+  list-style: none;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
 }
 
 a {
@@ -120,117 +232,277 @@ a {
   text-decoration: none;
 }
 
-/* Tabular figures everywhere money appears — columns must align. */
-.num {
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1;
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* Visible focus, always. Two-tone so it survives on tinted backgrounds. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--r-1);
+}
+
+.focus-halo:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--focus);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* -----------------------------------------------------------------------------
+   4. MONEY
+   Tabular, always. Every figure carries its currency — a bare number is a bug.
+   -------------------------------------------------------------------------- */
+
+.num,
+.money {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1, "ss01" 1;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
 .mono {
   font-family: var(--mono);
   font-variant-numeric: tabular-nums;
+  font-size: 0.95em;
 }
 
-/* ---------- Layout ---------- */
+/* Currency code rendered beside a figure. Never omit it. */
+.ccy {
+  font-size: 0.62em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-left: 0.35em;
+  vertical-align: 0.12em;
+}
+
+/* Direction is carried by the sign glyph as well as the colour. */
+.pos { color: var(--pos); }
+.neg { color: var(--neg); }
+.muted { color: var(--text-muted); }
+.faint { color: var(--text-faint); }
+
+.dir::before {
+  content: attr(data-sign);
+  margin-right: 0.08em;
+}
+
+/* -----------------------------------------------------------------------------
+   5. LAYOUT
+   -------------------------------------------------------------------------- */
 
 .app-shell {
-  max-width: 1100px;
+  max-width: var(--shell-max);
   margin: 0 auto;
-  padding: 0 var(--sp-4);
+  padding-inline: max(var(--gutter), var(--safe-left), var(--safe-right));
+  padding-bottom: var(--sp-11);
 }
 
 @media (min-width: 768px) {
   .app-shell {
-    padding: 0 var(--sp-5);
+    --gutter: var(--sp-8);
   }
 }
 
 .page-header {
-  padding: calc(var(--safe-top) + var(--sp-5)) 0 var(--sp-4);
+  padding: var(--sp-8) 0 var(--sp-6);
+}
+
+@media (max-width: 767px) {
+  .page-header {
+    padding-top: calc(var(--safe-top) + var(--sp-8));
+  }
 }
 
 .page-title {
-  font-size: 26px;
-  font-weight: 640;
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  font-weight: 700;
+  letter-spacing: -0.022em;
+}
+
+@media (min-width: 768px) {
+  .page-title {
+    font-size: var(--fs-h1);
+    line-height: var(--lh-h1);
+  }
 }
 
 .page-sub {
   color: var(--text-muted);
-  font-size: 13px;
-  margin-top: var(--sp-1);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  margin-top: var(--sp-3);
 }
 
 .section {
-  margin-bottom: var(--sp-6);
+  margin-bottom: var(--sp-8);
+}
+
+.section + .section {
+  margin-top: 0;
 }
 
 .section-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--sp-3);
-  margin-bottom: var(--sp-3);
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  padding-inline: var(--sp-2);
 }
 
 .section-title {
-  font-size: 12px;
-  font-weight: 640;
+  font-size: var(--fs-micro);
+  line-height: var(--lh-micro);
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
 }
 
-/* ---------- Card ---------- */
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--sp-4);
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
 }
 
-.card + .card {
-  margin-top: var(--sp-3);
+.inline {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
 }
-
-.card-tight {
-  padding: var(--sp-3) var(--sp-4);
-}
-
-/* ---------- Grid ---------- */
 
 .grid {
   display: grid;
-  gap: var(--sp-3);
+  gap: var(--sp-4);
   grid-template-columns: 1fr;
 }
 
 @media (min-width: 600px) {
-  .grid-2 {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (min-width: 900px) {
-  .grid-3 {
-    grid-template-columns: repeat(3, 1fr);
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+.hint {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  color: var(--text-muted);
+}
+
+.empty {
+  padding: var(--sp-9) var(--sp-5);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--fs-body);
+}
+
+/* -----------------------------------------------------------------------------
+   6. CARD
+   -------------------------------------------------------------------------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+  padding: var(--sp-5);
+  box-shadow: var(--elev-1), var(--hairline-top);
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: var(--sp-7);
+    border-radius: var(--r-4);
   }
 }
 
-/* ---------- Rows ---------- */
+.card + .card {
+  margin-top: var(--sp-4);
+}
+
+/* For cards whose whole body is a list of .row — the rows own the padding. */
+.card-tight {
+  padding: var(--sp-2) var(--sp-5);
+}
+
+@media (min-width: 768px) {
+  .card-tight { padding: var(--sp-3) var(--sp-7); }
+}
+
+/* Elevated: the one card on a screen that is the answer. */
+.card-hero {
+  border-radius: var(--r-4);
+  padding: var(--sp-7) var(--sp-6) var(--sp-6);
+  box-shadow: var(--elev-2), var(--hairline-top);
+}
+
+/* Interactive card: whole card is a link. Never animates layout. */
+.card-link {
+  display: block;
+  transition:
+    background-color var(--dur-fast) var(--ease-inout),
+    border-color var(--dur-fast) var(--ease-inout),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .card-link:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+}
+
+.card-link:active {
+  background: var(--surface-2);
+  transform: translateY(0) scale(0.995);
+}
+
+/* -----------------------------------------------------------------------------
+   7. ROW
+   The unit of every list. 48px minimum so a thumb can hit it.
+   -------------------------------------------------------------------------- */
 
 .row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--sp-3);
-  padding: var(--sp-3) 0;
-  border-bottom: 1px solid var(--border);
-  min-height: 44px; /* touch target */
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0;
+  min-height: 48px;
+  position: relative;
 }
 
-.row:last-child {
-  border-bottom: none;
+.row + .row::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Indent the divider under a leading icon so it reads as a list, not a grid. */
+.row-inset + .row-inset::before {
+  inset-inline-start: 36px;
 }
 
 .row-main {
@@ -239,7 +511,9 @@ a {
 }
 
 .row-title {
-  font-weight: 520;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -247,140 +521,339 @@ a {
 
 .row-sub {
   color: var(--text-muted);
-  font-size: 12.5px;
-  margin-top: 1px;
-}
-
-.row-value {
-  font-weight: 600;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  margin-top: var(--sp-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* ---------- Money semantics ---------- */
-
-.pos {
-  color: var(--pos);
+.row-value {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: 600;
+  white-space: nowrap;
+  text-align: right;
 }
 
-.neg {
-  color: var(--neg);
+.row-value-sub {
+  display: block;
+  font-weight: 400;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  color: var(--text-faint);
+  margin-top: var(--sp-1);
 }
 
-.muted {
-  color: var(--text-muted);
+/* A row that navigates. Chevron is a real element so the hit area is honest. */
+a.row,
+button.row {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  margin-inline: calc(var(--sp-3) * -1);
+  padding-inline: var(--sp-3);
+  border-radius: var(--r-2);
+  transition: background-color var(--dur-instant) var(--ease-inout);
 }
 
-.faint {
+a.row:active,
+button.row:active {
+  background: var(--surface-2);
+}
+
+/* -----------------------------------------------------------------------------
+   8. STAT / BIG NUMBER
+   -------------------------------------------------------------------------- */
+
+.stat {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.stat-label {
+  font-size: var(--fs-micro);
+  line-height: var(--lh-micro);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--text-faint);
 }
 
-/* ---------- Pills / badges ---------- */
+/* Secondary stat figure. */
+.big-number {
+  font-size: var(--fs-display-2);
+  line-height: var(--lh-display-2);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+/* Hero figure. Sized against its CONTAINER, not the viewport, so a 13-glyph
+   INR figure in a half-width card still fits without clipping. */
+.big-number-hero {
+  font-size: clamp(30px, 13cqi, 60px);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  white-space: nowrap;
+}
+
+/* Fallback where container queries are unavailable. */
+@supports not (container-type: inline-size) {
+  .big-number-hero { font-size: clamp(30px, 10vw, 56px); }
+}
+
+.stat-meta {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  color: var(--text-muted);
+}
+
+/* -----------------------------------------------------------------------------
+   9. PILL
+   -------------------------------------------------------------------------- */
 
 .pill {
   display: inline-flex;
   align-items: center;
-  gap: var(--sp-1);
-  font-size: 11.5px;
+  gap: var(--sp-2);
+  font-size: var(--fs-micro);
+  line-height: 1;
   font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 999px;
+  letter-spacing: 0.03em;
+  padding: 5px var(--sp-3);
+  border-radius: var(--r-full);
+  border: 1px solid transparent;
   white-space: nowrap;
+  vertical-align: 1px;
 }
 
-.pill-warn {
-  background: var(--warn-bg);
-  color: var(--warn);
+.pill-pos     { background: var(--pos-bg);  color: var(--pos);  border-color: var(--pos-line); }
+.pill-neg     { background: var(--neg-bg);  color: var(--neg);  border-color: var(--neg-line); }
+.pill-warn    { background: var(--warn-bg); color: var(--warn); border-color: var(--warn-line); }
+.pill-info    { background: var(--info-bg); color: var(--info); border-color: var(--info-line); }
+.pill-neutral { background: var(--surface-2); color: var(--text-muted); border-color: var(--border); }
+
+/* Severity dot: shape backs up colour. A pill is often the only cue on a row. */
+.pill-dot::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-full);
+  background: currentColor;
+  flex: none;
 }
 
-.pill-neg {
-  background: var(--neg-bg);
-  color: var(--neg);
+.pill-neg.pill-dot::before  { border-radius: 1px; transform: rotate(45deg); } /* diamond */
+.pill-warn.pill-dot::before { border-radius: 1px; }                           /* square */
+
+/* Tap-target pill (filter chips). */
+.pill-tap {
+  min-height: 36px;
+  padding-inline: var(--sp-5);
+  font-size: var(--fs-caption);
 }
 
-.pill-pos {
-  background: var(--pos-bg);
-  color: var(--pos);
+/* -----------------------------------------------------------------------------
+   10. ALERT
+   The block that says "this is about to break". Never colour alone: it carries
+   a mark, a bold verdict line, and a left rule.
+   -------------------------------------------------------------------------- */
+
+.alert {
+  border-radius: var(--r-3);
+  padding: var(--sp-5);
+  border: 1px solid transparent;
+  border-left-width: 3px;
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  column-gap: var(--sp-4);
+  row-gap: var(--sp-3);
+  box-shadow: var(--hairline-top);
 }
 
-.pill-info {
-  background: var(--info-bg);
-  color: var(--info);
+.alert-neg  { background: var(--neg-bg);  border-color: var(--neg-line);  border-left-color: var(--neg); }
+.alert-warn { background: var(--warn-bg); border-color: var(--warn-line); border-left-color: var(--warn); }
+.alert-info { background: var(--info-bg); border-color: var(--info-line); border-left-color: var(--info); }
+.alert-pos  { background: var(--pos-bg);  border-color: var(--pos-line);  border-left-color: var(--pos); }
+
+.alert-mark {
+  grid-column: 1;
+  grid-row: 1;
+  width: 20px;
+  height: 20px;
+  display: block;
+  margin-top: 1px;
 }
 
-.pill-neutral {
-  background: var(--surface-2);
+.alert-neg  .alert-mark { color: var(--neg); }
+.alert-warn .alert-mark { color: var(--warn); }
+.alert-info .alert-mark { color: var(--info); }
+.alert-pos  .alert-mark { color: var(--pos); }
+
+.alert-title {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: var(--fs-body-lg);
+  line-height: var(--lh-body-lg);
+  font-weight: 600;
+  letter-spacing: -0.012em;
+}
+
+.alert-neg  .alert-title { color: var(--neg); }
+.alert-warn .alert-title { color: var(--warn); }
+.alert-info .alert-title { color: var(--info); }
+.alert-pos  .alert-title { color: var(--pos); }
+
+.alert-body {
+  grid-column: 2;
+  grid-row: 2;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--text);
+}
+
+.alert-actions {
+  grid-column: 2;
+  grid-row: 3;
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+/* -----------------------------------------------------------------------------
+   11. BUTTON
+   -------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  min-height: 44px;
+  padding: 0 var(--sp-6);
+  border-radius: var(--r-2);
+  border: 1px solid transparent;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  letter-spacing: -0.006em;
+  cursor: pointer;
+  background: none;
+  transition:
+    background-color var(--dur-fast) var(--ease-inout),
+    border-color var(--dur-fast) var(--ease-inout),
+    opacity var(--dur-fast) var(--ease-inout);
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.btn-ghost {
   color: var(--text-muted);
 }
 
-/* ---------- Alert block ---------- */
+.btn:active { opacity: 0.82; }
+.btn[disabled] { opacity: 0.45; cursor: not-allowed; }
 
-.alert {
-  border-radius: var(--radius);
-  padding: var(--sp-4);
-  border: 1px solid transparent;
+.btn-sm {
+  min-height: 36px;
+  padding-inline: var(--sp-5);
+  font-size: var(--fs-small);
 }
 
-.alert-neg {
-  background: var(--neg-bg);
-  border-color: color-mix(in srgb, var(--neg) 25%, transparent);
-}
-
-.alert-warn {
-  background: var(--warn-bg);
-  border-color: color-mix(in srgb, var(--warn) 25%, transparent);
-}
-
-.alert-title {
-  font-weight: 640;
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-}
-
-.alert-body {
-  margin-top: var(--sp-2);
-  font-size: 14px;
-}
-
-/* ---------- Coverage bar (net worth honesty, spec §9.8) ---------- */
+/* -----------------------------------------------------------------------------
+   12. COVERAGE METER
+   Net worth never renders without this (spec §9.8). It is not a progress bar:
+   it is a statement of how much of the number is actually known.
+   -------------------------------------------------------------------------- */
 
 .coverage {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  margin-top: var(--sp-2);
-  font-size: 12px;
+  gap: var(--sp-3);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
   color: var(--text-muted);
+  flex-wrap: wrap;
 }
 
 .coverage-track {
-  flex: 1;
-  height: 4px;
+  flex: 1 1 120px;
+  max-width: 180px;
+  height: 6px;
   background: var(--surface-2);
-  border-radius: 999px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
   overflow: hidden;
-  max-width: 140px;
+  /* Hatching on the uncovered remainder — texture, not just absence of colour. */
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 3px,
+    var(--border) 3px 4px
+  );
 }
 
 .coverage-fill {
   height: 100%;
   background: var(--info);
+  border-radius: var(--r-full);
+  transition: width var(--dur-slow) var(--ease-out);
 }
 
-/* ---------- Bottom nav (mobile) / top tabs (desktop) ---------- */
+/* State is spoken in the label too, never by the fill colour alone. */
+.coverage[data-level="low"] .coverage-fill  { background: var(--warn); }
+.coverage[data-level="full"] .coverage-fill { background: var(--pos); }
+
+.coverage-figure {
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.coverage-asof {
+  color: var(--text-faint);
+}
+
+/* -----------------------------------------------------------------------------
+   13. NAV — bottom tabs on phones, top tabs on desktop
+   -------------------------------------------------------------------------- */
 
 .nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: calc(var(--nav-height) + var(--safe-bottom));
+  height: calc(var(--nav-h) + var(--safe-bottom));
   padding-bottom: var(--safe-bottom);
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
-  backdrop-filter: blur(12px);
+  padding-inline: max(var(--sp-2), var(--safe-left), var(--safe-right));
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
   border-top: 1px solid var(--border);
+  box-shadow: var(--elev-3);
   display: flex;
   z-index: 50;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nav { background: var(--surface); }
 }
 
 .nav-item {
@@ -389,21 +862,49 @@ a {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  font-size: 10.5px;
-  font-weight: 560;
-  color: var(--text-faint);
+  gap: 3px;
+  min-height: 56px;
   min-width: 0;
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--text-faint);
+  position: relative;
+  transition: color var(--dur-fast) var(--ease-inout);
 }
 
-.nav-item[data-active='true'] {
-  color: var(--accent);
+.nav-item > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-item[data-active="true"] {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* Active marker is a shape, not only a colour change. */
+.nav-item[data-active="true"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 18px;
+  height: 2px;
+  border-radius: var(--r-full);
+  background: var(--ink);
 }
 
 .nav-icon {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   display: block;
+}
+
+.nav-item[data-active="true"] .nav-icon {
+  stroke-width: 2.1;
 }
 
 @media (min-width: 768px) {
@@ -412,64 +913,387 @@ a {
     top: 0;
     bottom: auto;
     height: auto;
-    padding: 0;
+    padding: calc(var(--safe-top) + var(--sp-4)) var(--sp-8) var(--sp-4);
     border-top: none;
     border-bottom: 1px solid var(--border);
-    max-width: 1100px;
+    box-shadow: none;
+    gap: var(--sp-2);
+    max-width: var(--shell-max);
     margin: 0 auto;
-    gap: var(--sp-1);
-    padding: var(--sp-2) var(--sp-5);
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
   }
 
   .nav-item {
     flex: 0 0 auto;
     flex-direction: row;
-    gap: var(--sp-2);
-    font-size: 13.5px;
-    padding: var(--sp-2) var(--sp-3);
-    border-radius: var(--radius-sm);
+    gap: var(--sp-3);
+    min-height: 40px;
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    padding: 0 var(--sp-5);
+    border-radius: var(--r-2);
   }
 
-  .nav-item[data-active='true'] {
-    background: var(--surface-2);
+  .nav-item[data-active="true"] {
+    background: var(--surface-3);
+  }
+
+  .nav-item[data-active="true"]::before {
+    display: none;
   }
 }
 
-/* ---------- Utility ---------- */
+/* -----------------------------------------------------------------------------
+   14. DATA TABLE THAT SURVIVES 375px
+   Two strategies, both semantic <table>. Pick per table.
 
-.stack {
+   .dt-stack  — ≤599px each <tr> becomes a 2-column card row, labels injected
+                from data-label. Use when rows are independent records.
+   .dt-scroll — horizontal scroll with a sticky first column. Use only when
+                columns must be compared across rows (a rate table).
+   -------------------------------------------------------------------------- */
+
+.dt {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+}
+
+.dt caption {
+  text-align: left;
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  padding-bottom: var(--sp-4);
+}
+
+.dt th {
+  font-weight: 600;
+  color: var(--text-faint);
+  font-size: var(--fs-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: left;
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--border-strong);
+  white-space: nowrap;
+}
+
+.dt td {
+  padding: var(--sp-4);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.dt tbody tr:last-child td { border-bottom: none; }
+
+.dt [data-numeric] {
+  text-align: right;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  white-space: nowrap;
+}
+
+/* --- stack strategy --- */
+@media (max-width: 599px) {
+  .dt-stack thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .dt-stack tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    gap: var(--sp-1) var(--sp-4);
+    padding: var(--sp-4) 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dt-stack tbody tr:last-child { border-bottom: none; }
+
+  .dt-stack td {
+    padding: 0;
+    border: none;
+    min-width: 0;
+  }
+
+  /* First cell is the record's identity: full width of the label column. */
+  .dt-stack td:first-child {
+    grid-column: 1;
+    font-size: var(--fs-body);
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* The primary figure pins to the right of row 1. */
+  .dt-stack td[data-primary] {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: var(--fs-body);
+    font-weight: 600;
+  }
+
+  /* Everything else flows as labelled meta under the identity. */
+  .dt-stack td:not(:first-child):not([data-primary]) {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    color: var(--text-muted);
+    font-size: var(--fs-caption);
+    line-height: var(--lh-caption);
+  }
+
+  .dt-stack td:not(:first-child):not([data-primary])::before {
+    content: attr(data-label);
+    color: var(--text-faint);
+    font-weight: 500;
+  }
+}
+
+/* --- scroll strategy --- */
+.dt-scroll-wrap {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  margin-inline: calc(var(--sp-5) * -1);
+  padding-inline: var(--sp-5);
+  /* Fade cue that there is more to the right. */
+  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent 100%);
+}
+
+.dt-scroll-wrap:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+
+.dt-scroll { min-width: 560px; }
+
+.dt-scroll th:first-child,
+.dt-scroll td:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--surface);
+  z-index: 1;
+  box-shadow: 1px 0 0 var(--border);
+}
+
+/* -----------------------------------------------------------------------------
+   15. RUNWAY — the signature component
+   21 day-segments under the hero balance. Height encodes headroom, tint encodes
+   state, and a notch marks the breach. The verdict sentence beneath states the
+   same fact in words, so the graphic is never load-bearing on its own.
+   -------------------------------------------------------------------------- */
+
+.runway {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
 }
 
-.inline {
+.runway-track {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 44px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.runway-day {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 2px 2px 1px 1px;
+  background: var(--surface-3);
+  height: 40%;
+  transition: height var(--dur-slow) var(--ease-out);
+}
+
+.runway-day[data-state="safe"]   { background: var(--pos-line); height: 100%; }
+.runway-day[data-state="thin"]   { background: var(--warn); height: 55%; }
+.runway-day[data-state="breach"] { background: var(--neg); height: 24%; }
+
+/* The breach day gets a mark above the bar — shape, not just colour. */
+.runway-day[data-breach="true"] {
+  position: relative;
+  overflow: visible;
+}
+
+.runway-day[data-breach="true"]::after {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 3px);
+  left: 50%;
+  translate: -50% 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 5px solid var(--neg);
+}
+
+.runway-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-micro);
+  line-height: var(--lh-micro);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 600;
+}
+
+/* -----------------------------------------------------------------------------
+   16. HERO — the Today screen's answer
+   "Checking balance, and whether it survives the next 21 days."
+   -------------------------------------------------------------------------- */
+
+.hero {
+  container-type: inline-size;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-4);
+  padding: var(--sp-7) var(--sp-6) var(--sp-6);
+  box-shadow: var(--elev-2), var(--hairline-top);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+@media (min-width: 768px) {
+  .hero { padding: var(--sp-8) var(--sp-8) var(--sp-7); }
+}
+
+.hero-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.hero-eyebrow {
+  font-size: var(--fs-micro);
+  line-height: var(--lh-micro);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-faint);
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  flex-wrap: wrap;
+  gap: var(--sp-3);
 }
 
-.big-number {
-  font-size: 32px;
-  font-weight: 660;
-  letter-spacing: -0.02em;
+.hero-figure {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  /* Optically align the leading currency glyph to the card edge. */
+  margin-left: -0.02em;
 }
 
-@media (min-width: 600px) {
-  .big-number {
-    font-size: 38px;
+.hero-amount {
+  font-size: clamp(30px, 13cqi, 60px);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.032em;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+@supports not (container-type: inline-size) {
+  .hero-amount { font-size: clamp(30px, 10vw, 60px); }
+}
+
+.hero-ccy {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  align-self: flex-end;
+  padding-bottom: 0.35em;
+}
+
+.hero-asof {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  color: var(--text-muted);
+}
+
+/* Verdict: the one sentence the screen exists to say. */
+.hero-verdict {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: var(--sp-4);
+  align-items: start;
+  font-size: var(--fs-body-lg);
+  line-height: var(--lh-body-lg);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--border);
+}
+
+.hero-verdict b {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.hero-verdict-mark {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+
+.hero-verdict[data-verdict="breach"] .hero-verdict-mark { color: var(--neg); }
+.hero-verdict[data-verdict="breach"] b { color: var(--neg); }
+.hero-verdict[data-verdict="thin"]   .hero-verdict-mark { color: var(--warn); }
+.hero-verdict[data-verdict="thin"] b { color: var(--warn); }
+.hero-verdict[data-verdict="safe"]   .hero-verdict-mark { color: var(--pos); }
+.hero-verdict[data-verdict="safe"] b { color: var(--pos); }
+
+/* Assumptions are always visible. A projection that hides its inputs is a lie. */
+.hero-assume {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  color: var(--text-faint);
+  padding-left: calc(20px + var(--sp-4));
+  margin-top: calc(var(--sp-4) * -1);
+}
+
+.hero-assume b {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* -----------------------------------------------------------------------------
+   17. MOTION POLICY
+   Only opacity, transform, colour, background-color, border-color, box-shadow
+   and SVG fill/stroke may animate. Never width/height/top/left/margin/padding
+   on anything a user is reading, and NEVER a money figure — no count-ups, no
+   crossfades on value change. A number that moves while you read it is the
+   opposite of certain.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
   }
-}
 
-.hint {
-  font-size: 12.5px;
-  color: var(--text-muted);
-}
-
-.empty {
-  padding: var(--sp-6) var(--sp-4);
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 14px;
+  /* Translation and scale are removed entirely; opacity changes are kept
+     because they carry meaning without inducing motion. */
+  .card-link:hover,
+  .card-link:active { transform: none; }
 }
