@@ -1297,3 +1297,14 @@ button.row:active {
   .card-link:hover,
   .card-link:active { transform: none; }
 }
+
+/* The public landing page owns the entire viewport; workspace screens retain
+   the constrained application shell defined above. */
+body:has(.landing) {
+  background: #f5efe2;
+}
+
+main.app-shell:has(.landing) {
+  max-width: none;
+  padding: 0;
+}

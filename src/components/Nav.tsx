@@ -9,7 +9,7 @@ import { usePathname } from 'next/navigation'
  * question the app exists to answer is "what's about to go wrong".
  */
 const TABS = [
-  { href: '/', label: 'Today', icon: TodayIcon },
+  { href: '/demo', label: 'Demo', icon: TodayIcon },
   { href: '/debt', label: 'Debt', icon: DebtIcon },
   { href: '/net-worth', label: 'Net worth', icon: NetWorthIcon },
   { href: '/investments', label: 'Investments', icon: InvestIcon },
@@ -19,10 +19,14 @@ const TABS = [
 export function Nav() {
   const pathname = usePathname()
 
+  // The marketing home has its own navigation; the financial workspace keeps
+  // this contextual tab bar on every other route.
+  if (pathname === '/') return null
+
   return (
     <nav className="nav" aria-label="Primary">
       {TABS.map(({ href, label, icon: Icon }) => {
-        const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
+        const active = pathname.startsWith(href)
         return (
           <Link
             key={href}
