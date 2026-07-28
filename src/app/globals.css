@@ -1,77 +1,59 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@10..48,75..100,700;10..48,75..100,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
 
 /* =============================================================================
-   Finapp app design system — Memphis
-   The landing page (src/app/landing.module.css) sells. These are the screens
-   someone opens at 2am worried about a bounced bill. Same visual language,
-   different discipline:
+   Finapp Design System — Production
+   
+   Dark-first, premium finance aesthetic inspired by CRED. The Memphis style
+   served the marketing landing page; the production app earns trust through
+   restraint: deep backgrounds, luminous accents, frosted glass surfaces, and
+   numbers that never move.
 
-   - The confetti stays on the landing page. Scattered shapes behind a table of
-     money is noise, and noise on a screen about a shortfall is the fastest way
-     to lose trust.
-   - The Memphis palette happens to carry exactly the four money semantics this
-     app needs, so colour does real work here instead of decoration:
-       coral   = negative / shortfall / danger
-       teal    = positive / cleared / on track
-       mustard = warning / attention
-       violet  = informational
-   - Colour is never the only carrier (CLAUDE.md design rule 4). Every semantic
-     use is paired with a sign, a word, or a shape.
-
-   Every class name from the previous system still exists, so no .tsx changes.
-   Mobile-first: written for 375px, widened at 600 / 768 / 900.
+   Every class name from the previous system is preserved so component .tsx
+   files need minimal changes. The visual identity shifts without breaking the
+   codebase.
    ========================================================================== */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: dark light;
 
-  /* --- Memphis ground and ink --- */
-  --cream:   #f5efe2;
-  --paper:   #ffffff;
-  --ink:     #17140d;
+  /* --- Ground and ink --- */
+  --bg:        #0a0a0f;
+  --surface:   rgba(255, 255, 255, 0.04);
+  --surface-2: rgba(255, 255, 255, 0.07);
+  --surface-3: rgba(255, 255, 255, 0.10);
 
-  --bg:        var(--cream);
-  --surface:   var(--paper);
-  --surface-2: #efe7d7;
-  --surface-3: #e6dcc7;
+  --text:       #f0eef5;
+  --text-muted: #8a87a0;
+  --text-faint: #5e5b73;
 
-  --text:       var(--ink);
-  --text-muted: #5d564a;
-  --text-faint: #7a7264;
-
-  /* --- Flat Memphis palette. Solid fills only. Never a gradient. --- */
-  --coral:   #ff5b57;
-  --teal:    #12b3a4;
-  --mustard: #ffc531;
-  --violet:  #6b5be6;
-  --sky:     #3aa0ff;
+  /* --- Accent palette --- */
+  --coral:   #ff6b6b;
+  --teal:    #2dd4bf;
+  --mustard: #fbbf24;
+  --violet:  #8b5cf6;
+  --sky:     #38bdf8;
 
   /* --- Money semantics --- */
-  --pos:    #0a7a6e;   /* darkened teal: 4.6:1 on cream */
-  --pos-bg: var(--teal);
-  --neg:    #c4322e;   /* darkened coral: 5.1:1 on cream */
-  --neg-bg: var(--coral);
-  --warn:   #8a6100;   /* darkened mustard: 4.8:1 on cream */
-  --warn-bg: var(--mustard);
-  --info:   #4c3fd0;
-  --info-bg: var(--violet);
+  --pos:    #34d399;
+  --pos-bg: rgba(52, 211, 153, 0.12);
+  --neg:    #f87171;
+  --neg-bg: rgba(248, 113, 113, 0.12);
+  --warn:   #fbbf24;
+  --warn-bg: rgba(251, 191, 36, 0.12);
+  --info:   #818cf8;
+  --info-bg: rgba(129, 140, 248, 0.12);
 
   --focus: var(--violet);
 
-  /* --- The signature: thick outlines + flat hard offset shadows. No blur. --- */
-  --line:      3px;
-  --line-thin: 2px;
-  --outline:      var(--line) solid var(--ink);
-  --outline-thin: var(--line-thin) solid var(--ink);
+  /* --- Glass and depth --- */
+  --glass: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-hover: rgba(255, 255, 255, 0.07);
+  --glow: 0 0 40px rgba(139, 92, 246, 0.06);
 
-  --drop-lg: 8px 8px 0 var(--ink);
-  --drop:    5px 5px 0 var(--ink);
-  --drop-sm: 3px 3px 0 var(--ink);
-
-  /* --- Type: two faces, aggressive scale --- */
-  --display: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif;
-  --font:    'DM Sans', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  --mono:    ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+  /* --- Type --- */
+  --font: 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  --mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 
   --fs-micro:   11px;
   --fs-caption: 12px;
@@ -79,8 +61,8 @@
   --fs-body:    15px;
   --fs-lg:      17px;
   --fs-h3:      20px;
-  --fs-h2:      25px;
-  --fs-h1:      32px;
+  --fs-h2:      26px;
+  --fs-h1:      34px;
 
   /* --- Space --- */
   --sp-1: 4px;
@@ -91,51 +73,45 @@
   --sp-6: 32px;
   --sp-7: 48px;
 
-  --r-1: 8px;
-  --r-2: 12px;
-  --r-3: 18px;
+  --r-1: 10px;
+  --r-2: 14px;
+  --r-3: 20px;
   --r-full: 999px;
 
-  --dur: 140ms;
-  --ease: cubic-bezier(0.2, 0, 0.1, 1);
+  --dur: 200ms;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
 
   --safe-top:    env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  --nav-h: 62px;
-  --shell-max: 1120px;
+  --nav-h: 64px;
+  --shell-max: 1080px;
 }
 
 /* -----------------------------------------------------------------------------
-   Night. Memphis is a daylight aesthetic, so this is a deliberate re-key rather
-   than an inversion: the ground goes to deep ink, outlines flip to cream, and
-   the palette stays exactly as saturated. The language survives; the glare does not.
+   Light mode override
    -------------------------------------------------------------------------- */
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --ink: #f3ecdd;           /* outlines and shadows become cream */
-    --bg:        #14120e;
-    --surface:   #1e1b15;
-    --surface-2: #2a251c;
-    --surface-3: #363023;
+    --bg:        #f6f5f8;
+    --surface:   #ffffff;
+    --surface-2: #f0eef4;
+    --surface-3: #e6e4ed;
 
-    --text:       #f6f1e6;
-    --text-muted: #b6ad9c;
-    --text-faint: #928a7b;
+    --text:       #1a1625;
+    --text-muted: #65607a;
+    --text-faint: #9994ad;
 
-    /* On a dark ground the flat palette is already legible — use it directly. */
-    --pos:  #3fd6bf;
-    --neg:  #ff7d78;
-    --warn: #ffcc4d;
-    --info: #9d90ff;
+    --pos:  #059669;
+    --neg:  #dc2626;
+    --warn: #d97706;
+    --info: #6366f1;
 
-    --focus: #9d90ff;
-
-    /* Cream shadows at low alpha: the offset reads without shouting. */
-    --drop-lg: 8px 8px 0 rgba(243, 236, 221, 0.22);
-    --drop:    5px 5px 0 rgba(243, 236, 221, 0.22);
-    --drop-sm: 3px 3px 0 rgba(243, 236, 221, 0.22);
+    --glass: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(0, 0, 0, 0.06);
+    --glass-hover: rgba(255, 255, 255, 0.95);
+    --glow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
 }
 
@@ -164,9 +140,10 @@ body {
   color: var(--text);
   font-family: var(--font);
   font-size: var(--fs-body);
-  line-height: 1.5;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
-  padding-bottom: calc(var(--nav-h) + var(--safe-bottom));
+  -moz-osx-font-smoothing: grayscale;
+  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px);
   overscroll-behavior-y: none;
 }
 
@@ -193,19 +170,20 @@ a {
 button {
   font: inherit;
   color: inherit;
+  cursor: pointer;
 }
 
 code {
   font-family: var(--mono);
-  font-size: 0.92em;
-  padding: 1px 5px;
-  border: 1px solid var(--ink);
-  border-radius: 5px;
+  font-size: 0.88em;
+  padding: 2px 6px;
+  border-radius: 6px;
   background: var(--surface-2);
+  color: var(--info);
 }
 
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-  outline: 3px solid var(--focus);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
   border-radius: var(--r-1);
 }
@@ -233,8 +211,7 @@ code {
 }
 
 /* -----------------------------------------------------------------------------
-   Numbers. Tabular always — columns of money must align, and a figure that
-   shifts width as it updates reads as untrustworthy.
+   Numbers — tabular always, columns of money must align.
    -------------------------------------------------------------------------- */
 
 .num {
@@ -270,25 +247,25 @@ code {
 }
 
 .page-title {
-  font-family: var(--display);
   font-size: var(--fs-h1);
   font-weight: 800;
-  line-height: 0.98;
-  letter-spacing: -0.045em;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* The one Memphis flourish in-app: a flat mustard marker bar under the page
-   title. Decoration that reinforces hierarchy instead of competing with it. */
+/* Accent line under the title — a luminous gradient bar */
 .page-title::after {
   content: '';
   display: block;
-  width: 62px;
-  height: 9px;
+  width: 48px;
+  height: 3px;
   margin-top: var(--sp-2);
-  border: var(--line-thin) solid var(--ink);
   border-radius: 2px;
-  background: var(--mustard);
-  transform: rotate(-1.2deg);
+  background: linear-gradient(90deg, var(--violet), var(--teal));
 }
 
 .page-sub {
@@ -300,7 +277,7 @@ code {
 
 @media (min-width: 600px) {
   .page-title {
-    font-size: 40px;
+    font-size: 42px;
   }
 }
 
@@ -321,24 +298,30 @@ code {
 }
 
 .section-title {
-  font-family: var(--display);
   font-size: var(--fs-caption);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text);
+  color: var(--text-muted);
 }
 
 /* -----------------------------------------------------------------------------
-   Card — outline + hard offset shadow. The signature unit.
+   Card — frosted glass with subtle border
    -------------------------------------------------------------------------- */
 
 .card {
   background: var(--surface);
-  border: var(--outline);
+  border: 1px solid var(--glass-border);
   border-radius: var(--r-3);
-  box-shadow: var(--drop);
   padding: var(--sp-4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: var(--glow);
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.card:hover {
+  border-color: rgba(139, 92, 246, 0.15);
 }
 
 .card + .card {
@@ -381,7 +364,7 @@ code {
 }
 
 /* -----------------------------------------------------------------------------
-   Row — the list primitive. 44px minimum touch target.
+   Row — list primitive. 44px minimum touch target.
    -------------------------------------------------------------------------- */
 
 .row {
@@ -391,11 +374,19 @@ code {
   gap: var(--sp-3);
   min-height: 52px;
   padding: var(--sp-3) 0;
-  border-bottom: var(--line-thin) dashed color-mix(in srgb, var(--ink) 28%, transparent);
+  border-bottom: 1px solid var(--glass-border);
+  transition: background var(--dur) var(--ease);
 }
 
 .row:last-child {
   border-bottom: none;
+}
+
+.row:hover {
+  background: var(--surface-2);
+  margin-inline: calc(-1 * var(--sp-3));
+  padding-inline: var(--sp-3);
+  border-radius: var(--r-1);
 }
 
 .row-main {
@@ -404,7 +395,7 @@ code {
 }
 
 .row-title {
-  font-weight: 700;
+  font-weight: 600;
   font-size: var(--fs-body);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -412,23 +403,21 @@ code {
 }
 
 .row-sub {
-  margin-top: 1px;
+  margin-top: 2px;
   color: var(--text-muted);
   font-size: var(--fs-caption);
   font-weight: 500;
 }
 
 .row-value {
-  font-family: var(--display);
   font-weight: 700;
   font-size: var(--fs-lg);
   white-space: nowrap;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
 
 /* -----------------------------------------------------------------------------
-   Money semantics. Colour is never alone — .neg also gets a leading marker so
-   direction survives greyscale and colour-blindness.
+   Money semantics — colour + marker (never colour alone)
    -------------------------------------------------------------------------- */
 
 .pos { color: var(--pos); }
@@ -439,113 +428,131 @@ code {
 .row-value.neg::before,
 .big-number.neg::before {
   content: '▼ ';
-  font-size: 0.72em;
-  vertical-align: 0.1em;
+  font-size: 0.65em;
+  vertical-align: 0.12em;
 }
 
 .row-value.pos::before,
 .big-number.pos::before {
   content: '▲ ';
-  font-size: 0.72em;
-  vertical-align: 0.1em;
+  font-size: 0.65em;
+  vertical-align: 0.12em;
 }
 
 /* -----------------------------------------------------------------------------
-   Big number — the hero figure on most screens.
+   Big number — the hero metric
    -------------------------------------------------------------------------- */
 
 .big-number {
   display: block;
   margin-top: var(--sp-1);
-  font-family: var(--display);
-  font-size: 34px;
+  font-size: 36px;
   font-weight: 800;
   line-height: 1;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.04em;
 }
 
 @media (min-width: 600px) {
   .big-number {
-    font-size: 42px;
+    font-size: 44px;
   }
 }
 
 /* -----------------------------------------------------------------------------
-   Pill — outlined, flat fill, hard shadow.
+   Pill — status badges
    -------------------------------------------------------------------------- */
 
 .pill {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-1);
-  padding: 4px 10px;
-  border: var(--line-thin) solid var(--ink);
+  padding: 3px 10px;
   border-radius: var(--r-full);
-  box-shadow: var(--drop-sm);
   font-size: var(--fs-micro);
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   white-space: nowrap;
-  color: var(--ink);
 }
 
-.pill-neg     { background: var(--coral); color: #ffffff; }
-.pill-pos     { background: var(--teal); color: #ffffff; }
-.pill-warn    { background: var(--mustard); color: var(--ink); }
-.pill-info    { background: var(--violet); color: #ffffff; }
-.pill-neutral { background: var(--surface-2); color: var(--text); }
-
-@media (prefers-color-scheme: dark) {
-  .pill-neg, .pill-pos, .pill-info {
-    color: #14120e;
-  }
-}
+.pill-neg     { background: var(--neg-bg); color: var(--neg); }
+.pill-pos     { background: var(--pos-bg); color: var(--pos); }
+.pill-warn    { background: var(--warn-bg); color: var(--warn); }
+.pill-info    { background: var(--info-bg); color: var(--info); }
+.pill-neutral { background: var(--surface-2); color: var(--text-muted); }
 
 /* -----------------------------------------------------------------------------
-   Alert — the loudest thing on a screen. This is the shortfall warning, so it
-   earns a full flat fill and the large drop shadow.
+   Alert — the loudest element on screen
    -------------------------------------------------------------------------- */
 
 .alert {
-  border: var(--outline);
+  border: 1px solid var(--glass-border);
   border-radius: var(--r-3);
-  box-shadow: var(--drop-lg);
-  padding: var(--sp-4) var(--sp-4) var(--sp-5);
+  padding: var(--sp-5);
   background: var(--surface);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle gradient glow on the left edge */
+.alert::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--info);
 }
 
 .alert-neg {
-  background: var(--coral);
-  color: #17140d;
+  border-color: rgba(248, 113, 113, 0.2);
+}
+
+.alert-neg::before {
+  background: var(--neg);
 }
 
 .alert-warn {
-  background: var(--mustard);
-  color: #17140d;
+  border-color: rgba(251, 191, 36, 0.2);
+}
+
+.alert-warn::before {
+  background: var(--warn);
 }
 
 .alert-title {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  font-family: var(--display);
   font-size: var(--fs-h3);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.035em;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.alert-neg .alert-title {
+  color: var(--neg);
+}
+
+.alert-warn .alert-title {
+  color: var(--warn);
 }
 
 .alert-body {
   margin-top: var(--sp-3);
   font-size: var(--fs-body);
   font-weight: 500;
-  line-height: 1.5;
+  line-height: 1.55;
+  color: var(--text-muted);
 }
 
 .alert-body strong {
-  font-family: var(--display);
-  font-weight: 800;
+  font-weight: 700;
+  color: var(--text);
 }
 
 @media (min-width: 600px) {
@@ -555,7 +562,7 @@ code {
 }
 
 /* -----------------------------------------------------------------------------
-   Coverage meter — net worth never renders without it (spec 9.8).
+   Coverage meter — net worth never renders without it
    -------------------------------------------------------------------------- */
 
 .coverage {
@@ -571,20 +578,21 @@ code {
 .coverage-track {
   flex: 1;
   max-width: 150px;
-  height: 12px;
-  border: var(--line-thin) solid var(--ink);
+  height: 6px;
   border-radius: var(--r-full);
-  background: var(--surface-2);
+  background: var(--surface-3);
   overflow: hidden;
 }
 
 .coverage-fill {
   height: 100%;
-  background: var(--violet);
+  background: linear-gradient(90deg, var(--violet), var(--teal));
+  border-radius: var(--r-full);
+  transition: width 0.6s var(--ease);
 }
 
 /* -----------------------------------------------------------------------------
-   Nav — bottom tab bar on phones, top tab strip from 768px.
+   Nav — bottom tab bar on phones, top strip from 768px
    -------------------------------------------------------------------------- */
 
 .nav {
@@ -596,8 +604,16 @@ code {
   display: flex;
   height: calc(var(--nav-h) + var(--safe-bottom));
   padding-bottom: var(--safe-bottom);
-  background: var(--surface);
-  border-top: var(--line) solid var(--ink);
+  background: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  border-top: 1px solid var(--glass-border);
+}
+
+@media (prefers-color-scheme: light) {
+  .nav {
+    background: rgba(255, 255, 255, 0.85);
+  }
 }
 
 .nav-item {
@@ -607,39 +623,33 @@ code {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 4px;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.01em;
-  color: var(--text-muted);
+  color: var(--text-faint);
   transition: color var(--dur) var(--ease);
-}
-
-.nav-item[data-active='true'] {
-  color: var(--ink);
-}
-
-/* Active tab wears a flat mustard marker — legible without relying on colour
-   alone, and it survives greyscale as a filled bar. */
-.nav-item[data-active='true']::before {
-  content: '';
-  position: absolute;
-  top: -3px;
-  width: 38px;
-  height: 6px;
-  border: var(--line-thin) solid var(--ink);
-  border-radius: 0 0 4px 4px;
-  border-top: none;
-  background: var(--mustard);
-}
-
-.nav-item {
   position: relative;
 }
 
+.nav-item[data-active='true'] {
+  color: var(--text);
+}
+
+/* Active tab: luminous gradient dot above */
+.nav-item[data-active='true']::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 24px;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: linear-gradient(90deg, var(--violet), var(--teal));
+}
+
 .nav-icon {
-  width: 21px;
-  height: 21px;
+  width: 22px;
+  height: 22px;
   display: block;
 }
 
@@ -650,13 +660,19 @@ code {
     bottom: auto;
     height: auto;
     max-width: var(--shell-max);
-    margin: var(--sp-5) auto 0;
-    padding: var(--sp-2);
-    gap: var(--sp-2);
-    border: var(--outline);
+    margin: var(--sp-4) auto 0;
+    padding: var(--sp-1);
+    gap: var(--sp-1);
+    border: 1px solid var(--glass-border);
     border-radius: var(--r-full);
-    box-shadow: var(--drop);
-    background: var(--surface);
+    box-shadow: var(--glow);
+    background: rgba(10, 10, 15, 0.7);
+  }
+
+  @media (prefers-color-scheme: light) {
+    .nav {
+      background: rgba(255, 255, 255, 0.8);
+    }
   }
 
   .nav-item {
@@ -666,18 +682,136 @@ code {
     padding: var(--sp-2) var(--sp-4);
     border-radius: var(--r-full);
     font-size: var(--fs-small);
-    min-height: 44px;
+    min-height: 40px;
   }
 
   .nav-item[data-active='true'] {
-    background: var(--mustard);
-    color: #17140d;
-    border: var(--line-thin) solid var(--ink);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(45, 212, 191, 0.1));
+    color: var(--text);
   }
 
   .nav-item[data-active='true']::before {
     display: none;
   }
+}
+
+/* -----------------------------------------------------------------------------
+   Sync status
+   -------------------------------------------------------------------------- */
+
+.sync-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-2);
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  margin-bottom: var(--sp-5);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sync-dot-ok {
+  background: var(--pos);
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.4);
+}
+
+.sync-dot-stale {
+  background: var(--warn);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+}
+
+.sync-dot-never {
+  background: var(--text-faint);
+}
+
+.sync-dot-fail {
+  background: var(--neg);
+  box-shadow: 0 0 8px rgba(248, 113, 113, 0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.sync-btn {
+  margin-left: auto;
+  padding: 6px 14px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+}
+
+.sync-btn:hover {
+  background: var(--surface-3);
+  border-color: var(--violet);
+}
+
+.sync-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@keyframes spin-icon {
+  to { transform: rotate(360deg); }
+}
+
+.sync-spinning {
+  animation: spin-icon 1s linear infinite;
+  display: inline-block;
+}
+
+/* -----------------------------------------------------------------------------
+   Empty state
+   -------------------------------------------------------------------------- */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  padding: var(--sp-7) var(--sp-5);
+  text-align: center;
+}
+
+.empty-state-icon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--text-faint);
+}
+
+.empty-state-title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.empty-state-body {
+  font-size: var(--fs-body);
+  color: var(--text-muted);
+  max-width: 400px;
+  line-height: 1.55;
 }
 
 /* -----------------------------------------------------------------------------
@@ -710,3 +844,19 @@ code {
   color: var(--text-muted);
   font-weight: 500;
 }
+
+/* Smooth fade-in animation for page content */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section {
+  animation: fadeIn 0.4s var(--ease) both;
+}
+
+.section:nth-child(1) { animation-delay: 0ms; }
+.section:nth-child(2) { animation-delay: 60ms; }
+.section:nth-child(3) { animation-delay: 120ms; }
+.section:nth-child(4) { animation-delay: 180ms; }
+.section:nth-child(5) { animation-delay: 240ms; }

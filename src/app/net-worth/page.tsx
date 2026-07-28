@@ -1,50 +1,49 @@
 import { Money } from '@/components/Money'
 import { CoverageMeter, computeCoverage } from '@/components/CoverageMeter'
-import { getStoreAccounts } from '@/app/store'
+import { getStoreAccounts, today } from '@/app/store'
 import { money, subtract, sum } from '@/core/money'
 
-const TODAY = '2026-07-26'
-
-/**
- * Assets this app knows exist but cannot see, per currency. Declared explicitly
- * so they count against the coverage denominator instead of being silently
- * absent — an unknown unknown is what makes a net worth confidently wrong.
- */
-const UNSEEN_ASSETS: Record<string, readonly string[]> = {
-  USD: ['Employer equity (never entered)'],
-  INR: ['India savings account (no email)'],
-}
-
-function formatDay(iso: string): string {
-  const [year, month, day] = iso.split('-').map(Number)
-  return new Date(Date.UTC(year!, month! - 1, day!)).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    timeZone: 'UTC',
-  })
-}
-
 export default function NetWorthPage() {
+  const t = today()
   const accounts = getStoreAccounts()
 
-  const currencies = ['USD', 'INR'] as const
+  if (accounts.length === 0) {
+    return (
+      <>
+        <header className="page-header">
+          <h1 className="page-title">Net worth</h1>
+          <p className="page-sub">No accounts found yet</p>
+        </header>
+        <section className="section">
+          <div className="card">
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="28" height="28">
+                  <path d="M4 18.5V13M9.5 18.5V7M15 18.5v-8M20.5 18.5V4" strokeLinecap="round" />
+                </svg>
+              </div>
+              <div className="empty-state-title">No data yet</div>
+              <div className="empty-state-body">
+                Sync your Gmail to import account data. Net worth is computed from your checking balances (assets) and credit card balances (liabilities).
+              </div>
+            </div>
+          </div>
+        </section>
+      </>
+    )
+  }
+
+  const currencies = [...new Set(accounts.map((a) => a.currency))]
   const summaries = currencies.map((curr) => {
     const matching = accounts.filter((a) => a.currency === curr)
     const assets = matching.filter((a) => a.kind === 'checking' || a.kind === 'savings')
     const liabilities = matching.filter((a) => a.kind === 'credit_card' || a.kind === 'loan' || a.kind === 'line_of_credit')
 
-    // Canonical demo assets: USD checking buffer ($482.10) + checking savings ($801.90) = $1,284.00
-    // If USD checking is $482.10, we add a synthetic savings balance of $801.90 to equal the canonical $1,284.00
-    const rawAssets = sum(assets.map((a) => a.balance), curr)
-    const totalAssets = curr === 'USD' && rawAssets.minor === 48210
-      ? money(128400, 'USD') // Canonical $1,284.00 USD
-      : rawAssets
-
+    const totalAssets = sum(assets.map((a) => a.balance), curr)
     const totalLiabilities = sum(liabilities.map((a) => a.statementBalance ?? a.balance), curr)
     const netWorth = subtract(totalAssets, totalLiabilities)
 
-    // Derived from the accounts actually feeding this figure, not asserted.
-    const coverage = computeCoverage(matching, TODAY, UNSEEN_ASSETS[curr] ?? [])
+    const coverage = computeCoverage(matching, t, [])
 
     return {
       currency: curr,
@@ -65,15 +64,6 @@ export default function NetWorthPage() {
           Coverage-aware assets minus liabilities · Per-currency segregation
         </p>
       </header>
-
-      <section className="section">
-        <div className="alert">
-          <div className="alert-title">Why coverage ratio matters</div>
-          <div className="alert-body">
-            A confidently wrong net worth is worse than a visibly partial one (spec §9.8). Every figure below reports its exact coverage ratio and observation date. Nothing is ever summed across currencies.
-          </div>
-        </div>
-      </section>
 
       <section className="section">
         <div className="section-head">
@@ -112,7 +102,7 @@ export default function NetWorthPage() {
                     {acct.displayName} <span className="faint">({acct.currency})</span>
                   </div>
                   <div className="row-sub">
-                    {acct.institution} · {acct.kind} · observed {formatDay(acct.lastObservedAt)}
+                    {acct.institution} · {acct.kind.replace('_', ' ')} · observed {formatDay(acct.lastObservedAt)}
                   </div>
                 </div>
                 <div className="row-value num">
@@ -127,4 +117,13 @@ export default function NetWorthPage() {
       </section>
     </>
   )
+}
+
+function formatDay(iso: string): string {
+  const [year, month, day] = iso.split('-').map(Number)
+  return new Date(Date.UTC(year!, month! - 1, day!)).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  })
 }

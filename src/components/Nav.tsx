@@ -4,12 +4,11 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 /**
- * Bottom tab bar on phones, top tab strip on desktop — one component, driven by CSS.
- * Order matches the spec's screen list (§13.2), with Today first because the
- * question the app exists to answer is "what's about to go wrong".
+ * Navigation — bottom tab bar on phones, top tab strip on desktop.
+ * Production mode: always visible, no marketing page bypass.
  */
 const TABS = [
-  { href: '/demo', label: 'Demo', icon: TodayIcon },
+  { href: '/', label: 'Today', icon: TodayIcon },
   { href: '/debt', label: 'Debt', icon: DebtIcon },
   { href: '/net-worth', label: 'Net worth', icon: NetWorthIcon },
   { href: '/investments', label: 'Investments', icon: InvestIcon },
@@ -19,14 +18,10 @@ const TABS = [
 export function Nav() {
   const pathname = usePathname()
 
-  // The marketing home has its own navigation; the financial workspace keeps
-  // this contextual tab bar on every other route.
-  if (pathname === '/') return null
-
   return (
     <nav className="nav" aria-label="Primary">
       {TABS.map(({ href, label, icon: Icon }) => {
-        const active = pathname.startsWith(href)
+        const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
         return (
           <Link
             key={href}
@@ -44,7 +39,7 @@ export function Nav() {
   )
 }
 
-/* Inline SVGs — no icon dependency, no network request, themeable via currentColor. */
+/* Inline SVGs — no icon dependency, themeable via currentColor. */
 
 function TodayIcon() {
   return (

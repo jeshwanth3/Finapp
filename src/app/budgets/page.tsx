@@ -1,156 +1,120 @@
 import { Money } from '@/components/Money'
-import { money, subtract } from '@/core/money'
-
-interface RecurringStream {
-  readonly id: string
-  readonly label: string
-  readonly currency: 'USD' | 'INR'
-  readonly amount: ReturnType<typeof money>
-  readonly cadence: string
-  readonly source: string
-  readonly insightFlag?: {
-    readonly severity: 'critical' | 'warn' | 'info'
-    readonly note: string
-  }
-}
+import { getStoreAccounts, getRecentTransactions, today } from '@/app/store'
+import { money, sum } from '@/core/money'
 
 export default function BudgetsPage() {
-  const recurringStreams: RecurringStream[] = [
-    {
-      id: 'stream-rent',
-      label: 'Avalon Residential Rent',
-      currency: 'USD',
-      amount: money(150000, 'USD'), // $1,500.00
-      cadence: 'Monthly on the 3rd',
-      source: 'Lease confirmation email',
-    },
-    {
-      id: 'stream-zolve',
-      label: 'Zolve Cross-Border Card Bill',
-      currency: 'USD',
-      amount: money(94117, 'USD'), // $941.17
-      cadence: 'Monthly on the 7th',
-      source: 'Statement PDF email alert',
-      insightFlag: {
-        severity: 'critical',
-        note: 'Collides with Aug 5 card payment — projected checking shortfall',
-      },
-    },
-    {
-      id: 'stream-verve',
-      label: 'Verve AI Subscription',
-      currency: 'USD',
-      amount: money(19754, 'USD'), // $197.54
-      cadence: 'Quarterly',
-      source: 'Renewal notice email',
-      insightFlag: {
-        severity: 'warn',
-        note: 'Went up 18% in June ($120/yr more going forward)',
-      },
-    },
-    {
-      id: 'stream-canva',
-      label: 'Canva* Design Team',
-      currency: 'USD',
-      amount: money(3200, 'USD'), // $32.00
-      cadence: 'Monthly',
-      source: 'Receipt email alert',
-      insightFlag: {
-        severity: 'info',
-        note: 'Zombie subscription — billed twice since last inbox usage signal',
-      },
-    },
-    {
-      id: 'stream-fees',
-      label: 'Avoidable Fee Leakage (Returned / FX fees)',
-      currency: 'USD',
-      amount: money(10400, 'USD'), // $104.00
-      cadence: '12-month trailing total',
-      source: 'Fee deduction alerts',
-      insightFlag: {
-        severity: 'warn',
-        note: '2 returned payment fees & 3 foreign transaction fees detected',
-      },
-    },
-  ]
+  const accounts = getStoreAccounts()
+  const transactions = getRecentTransactions(50)
 
-  const totalUsdMonthly = money(150000 + 94117 + Math.round(19754 / 3) + 3200, 'USD')
+  // Detect recurring patterns from transactions
+  const merchantCounts = new Map<string, { count: number; total: number; currency: string; lastDate: string }>()
+  for (const tx of transactions) {
+    const key = tx.merchantRaw.toUpperCase()
+    const existing = merchantCounts.get(key)
+    if (existing) {
+      existing.count++
+      existing.total += Math.abs(tx.amount.minor)
+      if (tx.postedAt > existing.lastDate) existing.lastDate = tx.postedAt
+    } else {
+      merchantCounts.set(key, {
+        count: 1,
+        total: Math.abs(tx.amount.minor),
+        currency: tx.amount.currency,
+        lastDate: tx.postedAt,
+      })
+    }
+  }
+
+  // Filter for likely recurring (2+ occurrences)
+  const recurring = [...merchantCounts.entries()]
+    .filter(([, v]) => v.count >= 2)
+    .sort((a, b) => b[1].total - a[1].total)
+    .slice(0, 10)
 
   return (
     <>
       <header className="page-header">
         <h1 className="page-title">Budgets & Run-Rate</h1>
         <p className="page-sub">
-          Email-detected recurring streams · Advisory only, never blocking
+          Email-detected recurring streams · Advisory only
         </p>
       </header>
 
-      <section className="section">
-        <div className="alert">
-          <div className="alert-title">Advisory run-rate — never nagging</div>
-          <div className="alert-body">
-            Finapp tracks your recurring obligations and subscription run-rate from email receipts and renewal notices. Below are the authentic recurring streams detected in your inbox survey, including inline pricing and fee leakage alerts.
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="section-head">
-          <h2 className="section-title">Detected Monthly Run-Rate (USD)</h2>
-        </div>
-        <div className="card">
-          <div className="section-title">Fixed & Recurring Monthly Spend</div>
-          <div className="big-number num">
-            <Money value={totalUsdMonthly} />
-          </div>
-          <div className="hint">
-            Includes rent, cross-border bills, and normalized quarterly subscriptions
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
-        <div className="section-head">
-          <h2 className="section-title">Recurring streams & subscriptions</h2>
-          <span className="hint">Parsed from inbox receipts</span>
-        </div>
-        <div className="card card-tight">
-          {recurringStreams.map((s) => (
-            <div className="row" key={s.id}>
-              <div className="row-main">
-                <div className="row-title" style={{ fontWeight: 600 }}>
-                  {s.label}
-                </div>
-                <div className="row-sub">
-                  {s.cadence} · {s.source}
-                </div>
-                {s.insightFlag && (
-                  <div style={{ marginTop: 4 }}>
-                    <span
-                      className={`pill ${
-                        s.insightFlag.severity === 'critical'
-                          ? 'pill-neg'
-                          : s.insightFlag.severity === 'warn'
-                          ? 'pill-warn'
-                          : 'pill-info'
-                      }`}
-                      style={{ fontSize: 11, marginRight: 6 }}
-                    >
-                      {s.insightFlag.severity.toUpperCase()}
-                    </span>
-                    <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-                      {s.insightFlag.note}
-                    </span>
-                  </div>
-                )}
+      {transactions.length === 0 ? (
+        <section className="section">
+          <div className="card">
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="28" height="28">
+                  <circle cx="12" cy="12" r="8.5" />
+                  <path d="M12 3.5v8.5l6 3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </div>
-              <div className="row-value num">
-                <Money value={s.amount} />
+              <div className="empty-state-title">No transactions yet</div>
+              <div className="empty-state-body">
+                Sync your Gmail to import transactions. Finapp will automatically detect recurring charges and subscription patterns from your email receipts.
               </div>
             </div>
-          ))}
-        </div>
-      </section>
+          </div>
+        </section>
+      ) : (
+        <>
+          {recurring.length > 0 && (
+            <section className="section">
+              <div className="section-head">
+                <h2 className="section-title">Detected recurring merchants</h2>
+                <span className="hint">Based on transaction frequency</span>
+              </div>
+              <div className="card card-tight">
+                {recurring.map(([merchant, data]) => (
+                  <div className="row" key={merchant}>
+                    <div className="row-main">
+                      <div className="row-title" style={{ fontWeight: 600 }}>{merchant}</div>
+                      <div className="row-sub">
+                        {data.count} transactions · last on {formatDay(data.lastDate)}
+                      </div>
+                    </div>
+                    <div className="row-value num">
+                      <Money value={money(data.total, data.currency)} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <section className="section">
+            <div className="section-head">
+              <h2 className="section-title">Recent transactions</h2>
+              <span className="hint">{transactions.length} most recent</span>
+            </div>
+            <div className="card card-tight">
+              {transactions.slice(0, 20).map((tx) => (
+                <div className="row" key={tx.id}>
+                  <div className="row-main">
+                    <div className="row-title">{tx.merchantRaw}</div>
+                    <div className="row-sub">
+                      {formatDay(tx.postedAt)} · {tx.amount.currency}
+                    </div>
+                  </div>
+                  <div className={`row-value num ${tx.amount.minor < 0 ? 'neg' : 'pos'}`}>
+                    <Money value={tx.amount} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
     </>
   )
+}
+
+function formatDay(iso: string): string {
+  const [year, month, day] = iso.split('-').map(Number)
+  return new Date(Date.UTC(year!, month! - 1, day!)).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  })
 }

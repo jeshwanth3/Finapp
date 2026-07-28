@@ -1,5 +1,3 @@
-import { DemoBanner } from './DemoBanner'
-
 /**
  * Placeholder for screens whose engine phase has not landed yet.
  * Names the phase so the gap is legible rather than looking broken.
@@ -21,8 +19,6 @@ export function ComingSoon({
         <h1 className="page-title">{title}</h1>
         <p className="page-sub">{phase}</p>
       </header>
-
-      <DemoBanner />
 
       <div className="card">
         <p style={{ margin: 0, color: 'var(--text-muted)' }}>{summary}</p>
