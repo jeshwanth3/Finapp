@@ -7,7 +7,7 @@
     "node": ">=22.5.0"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "node -e \"const fs=require('fs'); fs.rmSync('.next',{recursive:true,force:true});\" && next dev",
     "build": "next build",
     "start": "next start",
     "test": "vitest run",

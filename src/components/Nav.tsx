@@ -4,11 +4,10 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 /**
- * Navigation — bottom tab bar on phones, top tab strip on desktop.
- * Production mode: always visible, no marketing page bypass.
+ * Navigation — 3D Motion Astro Tab Bar with professional financial labels.
  */
 const TABS = [
-  { href: '/', label: 'Today', icon: TodayIcon },
+  { href: '/', label: 'Today', icon: OverviewIcon },
   { href: '/debt', label: 'Debt', icon: DebtIcon },
   { href: '/net-worth', label: 'Net worth', icon: NetWorthIcon },
   { href: '/investments', label: 'Investments', icon: InvestIcon },
@@ -19,7 +18,7 @@ export function Nav() {
   const pathname = usePathname()
 
   return (
-    <nav className="nav" aria-label="Primary">
+    <nav className="nav" aria-label="Primary Navigation">
       {TABS.map(({ href, label, icon: Icon }) => {
         const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
         return (
@@ -39,13 +38,14 @@ export function Nav() {
   )
 }
 
-/* Inline SVGs — no icon dependency, themeable via currentColor. */
+/* 3D Motion Inline SVGs */
 
-function TodayIcon() {
+function OverviewIcon() {
   return (
     <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-      <rect x="3" y="4.5" width="18" height="16" rx="2.5" />
-      <path d="M3 9.5h18M8 3v3M16 3v3" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 3v2M12 19v2M3 12h2M19 12h2" strokeLinecap="round" />
     </svg>
   )
 }
@@ -53,8 +53,9 @@ function TodayIcon() {
 function DebtIcon() {
   return (
     <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-      <rect x="2.5" y="6" width="19" height="12.5" rx="2.5" />
-      <path d="M2.5 10.5h19" strokeLinecap="round" />
+      <rect x="3" y="6" width="18" height="13" rx="2.5" />
+      <path d="M3 10.5h18" strokeLinecap="round" />
+      <circle cx="8" cy="15" r="1.5" fill="currentColor" />
     </svg>
   )
 }
@@ -62,7 +63,8 @@ function DebtIcon() {
 function NetWorthIcon() {
   return (
     <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-      <path d="M4 18.5V13M9.5 18.5V7M15 18.5v-8M20.5 18.5V4" strokeLinecap="round" />
+      <path d="M3 17l6-6 4 4 8-8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M17 7h4v4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
@@ -70,8 +72,8 @@ function NetWorthIcon() {
 function InvestIcon() {
   return (
     <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-      <path d="M3.5 15.5l5-5 3.5 3.5 8-8" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M15.5 6h4.5v4.5" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 3" strokeLinecap="round" />
     </svg>
   )
 }
@@ -79,8 +81,8 @@ function InvestIcon() {
 function BudgetIcon() {
   return (
     <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 3.5v8.5l6 3" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="4" y="4" width="16" height="16" rx="3" />
+      <path d="M8 12h8M12 8v8" strokeLinecap="round" />
     </svg>
   )
 }

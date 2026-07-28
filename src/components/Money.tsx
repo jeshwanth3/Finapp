@@ -1,17 +1,24 @@
 import { format, type Money as MoneyValue } from '@/core/money'
 
 /**
- * Renders a Money value.
+ * Renders a Money value with tabular formatting and clean currency badges.
  *
- * Always tabular-figured so columns align, and always carries its currency, because
- * every screen in this app is potentially cross-currency (spec §10). There is no
- * prop to render a bare number — that would be the ambiguity this type exists to
- * prevent.
+ * Optional showBadge renders a professional pill badge (USD or INR).
  */
-export function Money({ value, locale }: { value: MoneyValue; locale?: string }) {
+export function Money({
+  value,
+  locale,
+  showBadge = false,
+}: {
+  value: MoneyValue
+  locale?: string
+  showBadge?: boolean
+}) {
+  const badgeClass = value.currency === 'USD' ? 'badge badge-usd' : 'badge badge-inr'
   return (
-    <span className="num" data-currency={value.currency}>
-      {format(value, locale)}
+    <span className="num" data-currency={value.currency} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+      <span>{format(value, locale)}</span>
+      {showBadge && <span className={badgeClass}>{value.currency}</span>}
     </span>
   )
 }

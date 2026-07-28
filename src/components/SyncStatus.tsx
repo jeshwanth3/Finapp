@@ -2,14 +2,6 @@
 
 import { useState, useCallback } from 'react'
 
-/**
- * Sync status bar — shows freshness and provides a "Sync Now" button.
- *
- * Client component because it needs to call the sync API and update state.
- * The freshness label comes from the server via props; the button triggers
- * POST /api/sync and refreshes the page on success.
- */
-
 interface SyncStatusProps {
   lastSuccessAt: string | null
   consecutiveFailures: number
@@ -37,16 +29,15 @@ export function SyncStatus({ lastSuccessAt, consecutiveFailures, hasCredentials 
       const res = await fetch('/api/sync', { method: 'POST' })
       const data = await res.json()
       if (data.error) {
-        setLastResult(`Error: ${data.error}`)
+        setLastResult(`Sync error: ${data.error}`)
       } else {
         setLastResult(
-          `Synced: ${data.parsed} parsed, ${data.ignored} ignored, ${data.quarantined} quarantined`,
+          `Sync complete: ${data.parsed} parsed · ${data.ignored} ignored · ${data.quarantined} quarantined`,
         )
-        // Reload to show new data
         setTimeout(() => window.location.reload(), 1200)
       }
     } catch (err: unknown) {
-      setLastResult(`Failed: ${err instanceof Error ? err.message : String(err)}`)
+      setLastResult(`Sync failed: ${err instanceof Error ? err.message : String(err)}`)
     } finally {
       setSyncing(false)
     }
@@ -55,14 +46,16 @@ export function SyncStatus({ lastSuccessAt, consecutiveFailures, hasCredentials 
   const neverSynced = lastSuccessAt === null
   const failing = consecutiveFailures > 0
 
-  let dotClass = 'sync-dot sync-dot-ok'
-  let label = lastSuccessAt ? `Synced ${formatAge(lastSuccessAt)}` : 'Never synced'
+  let dotClass = 'pulse-dot pulse-dot-ok'
+  let label = lastSuccessAt
+    ? `Live inbox connection · Synced ${formatAge(lastSuccessAt)}`
+    : 'No email sync data yet'
 
   if (neverSynced) {
     dotClass = 'sync-dot sync-dot-never'
   } else if (failing) {
     dotClass = 'sync-dot sync-dot-fail'
-    label = `Sync failing (${consecutiveFailures}×) — last success ${formatAge(lastSuccessAt!)}`
+    label = `Connection degraded (${consecutiveFailures} consecutive errors)`
   } else {
     const minutes = Math.round((Date.now() - Date.parse(lastSuccessAt!)) / 60_000)
     if (minutes > 30) {
@@ -72,21 +65,25 @@ export function SyncStatus({ lastSuccessAt, consecutiveFailures, hasCredentials 
 
   if (!hasCredentials) {
     return (
-      <div className="sync-bar">
-        <span className="sync-dot sync-dot-never" />
-        <span>Gmail not configured — set GMAIL_USER and GMAIL_APP_PASSWORD in .env.local</span>
+      <div className="sync-bar" style={{ borderColor: 'rgba(255,184,0,0.4)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span className="sync-dot sync-dot-stale" />
+          <span><strong>Gmail not configured</strong> — Add GMAIL_USER & GMAIL_APP_PASSWORD to `.env.local`</span>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="sync-bar">
-      <span className={dotClass} />
-      <span>{lastResult ?? label}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <span className={dotClass} />
+        <span>{lastResult ?? label}</span>
+      </div>
       <button className="sync-btn" onClick={doSync} disabled={syncing}>
         {syncing ? (
           <>
-            <span className="sync-spinning">↻</span> Syncing…
+            <span className="sync-spinning">↻</span> Syncing...
           </>
         ) : (
           '↻ Sync Now'

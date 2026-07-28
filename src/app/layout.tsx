@@ -24,12 +24,16 @@ export const viewport: Viewport = {
   ],
 }
 
+import { StarsBackground } from '@/components/ui/stars'
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <Nav />
-        <main className="app-shell">{children}</main>
+        <StarsBackground>
+          <Nav />
+          <main className="app-shell">{children}</main>
+        </StarsBackground>
       </body>
     </html>
   )

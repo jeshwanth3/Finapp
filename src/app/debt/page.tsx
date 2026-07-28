@@ -1,6 +1,7 @@
 import { Money } from '@/components/Money'
+import { AprGauge } from '@/components/AprGauge'
 import { getDebtAccounts, today } from '@/app/store'
-import { buildDebtMap, buildDueDateCalendar, formatApr } from '@/engine/debt-map'
+import { buildDebtMap, buildDueDateCalendar } from '@/engine/debt-map'
 
 function formatDay(iso: string): string {
   const [year, month, day] = iso.split('-').map(Number)
@@ -22,22 +23,26 @@ export default function DebtPage() {
   if (accounts.length === 0) {
     return (
       <>
-        <header className="page-header">
-          <h1 className="page-title">Debt</h1>
-          <p className="page-sub">No credit accounts found yet</p>
-        </header>
+        <div className="hero-showcase">
+          <div className="hero-tag">
+            <span className="pulse-dot pulse-dot-ok" /> Debt & Credit Overview
+          </div>
+          <h1 className="hero-title" style={{ marginTop: '8px' }}>Debt & Credit Analysis</h1>
+          <p className="hero-sub">No credit card or loan balances detected yet</p>
+        </div>
+
         <section className="section">
           <div className="card">
             <div className="empty-state">
               <div className="empty-state-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="28" height="28">
-                  <rect x="2.5" y="6" width="19" height="12.5" rx="2.5" />
-                  <path d="M2.5 10.5h19" strokeLinecap="round" />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="32" height="32">
+                  <rect x="3" y="6" width="18" height="13" rx="2.5" />
+                  <path d="M3 10.5h18" strokeLinecap="round" />
                 </svg>
               </div>
-              <div className="empty-state-title">No credit accounts detected</div>
+              <div className="empty-state-title">No Credit Accounts Synced</div>
               <div className="empty-state-body">
-                Sync your Gmail to import credit card statements and alert emails. Finapp will automatically detect your accounts and balances.
+                Connect your Gmail on the Overview page to import credit card statements and alert emails. Finapp automatically calculates statement balances, minimum payments, and APR severity.
               </div>
             </div>
           </div>
@@ -52,27 +57,31 @@ export default function DebtPage() {
 
   return (
     <>
-      <header className="page-header">
-        <h1 className="page-title">Debt</h1>
-        <p className="page-sub">
-          {accounts.length} credit account{accounts.length !== 1 ? 's' : ''} · Observed as of {formatDay(debtMap.asOf)}
+      <div className="hero-showcase">
+        <div className="hero-tag">
+          <span className="pulse-dot pulse-dot-ok" /> Strict per-currency segregation
+        </div>
+        <h1 className="hero-title" style={{ marginTop: '8px' }}>Debt & Credit Analysis</h1>
+        <p className="hero-sub">
+          {accounts.length} active credit accounts · Updated {formatDay(debtMap.asOf)}
         </p>
-      </header>
+      </div>
 
       <section className="section">
         <div className="section-head">
-          <h2 className="section-title">Totals by currency</h2>
-          <span className="hint">Strictly per-currency</span>
+          <h2 className="section-title">Total Balances by Currency</h2>
+          <span className="hint">No cross-currency summing</span>
         </div>
         <div className="grid grid-2">
           {debtMap.totalsByCurrency.map((total) => (
             <div className="card" key={total.currency}>
-              <div className="section-title">{total.currency} Total Owed</div>
+              <div className="section-title">{total.currency} Total Credit Owed</div>
               <div className="big-number num">
-                <Money value={total.totalOwed} />
+                <Money value={total.totalOwed} showBadge />
               </div>
-              <div className="hint">
-                Minimum due: <Money value={total.totalMinimumDue} /> · Coverage: {Math.round(total.coverageRatio * 100)}% ({total.observedAccounts} of {total.totalAccounts} accounts)
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginTop: '12px', color: 'var(--text-muted)' }}>
+                <span>Minimum Payment Due: <strong className="num pos"><Money value={total.totalMinimumDue} /></strong></span>
+                <span>{total.observedAccounts} of {total.totalAccounts} accounts verified</span>
               </div>
             </div>
           ))}
@@ -81,14 +90,43 @@ export default function DebtPage() {
 
       <section className="section">
         <div className="section-head">
-          <h2 className="section-title">Due-date calendar</h2>
-          <span className="hint">Next 30 days</span>
+          <h2 className="section-title">Credit Accounts & APR Severity</h2>
+          <span className="hint">Statement evidence & minimum due breakdown</span>
+        </div>
+        <div className="card card-tight">
+          {debtMap.positions.map((pos) => {
+            const days = pos.dueOn ? daysUntil(pos.dueOn, t) : undefined
+            return (
+              <div className="row" key={pos.accountId}>
+                <div className="row-main">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span className="row-title" style={{ fontWeight: 600 }}>{pos.label}</span>
+                    <AprGauge aprBasisPoints={pos.aprBasisPoints} isOverdue={days !== undefined && days < 0} />
+                  </div>
+                  <div className="row-sub">
+                    {pos.institution} · {pos.dueOn ? `Due on ${formatDay(pos.dueOn)} (${days} days)` : 'No due date observed'}
+                    {pos.asOf && ` · As of ${formatDay(pos.asOf)}`}
+                  </div>
+                </div>
+                <div className="row-value num">
+                  {pos.owed ? <Money value={pos.owed} showBadge /> : '—'}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="section-head">
+          <h2 className="section-title">30-Day Due Date Calendar</h2>
+          <span className="hint">Upcoming payment schedule</span>
         </div>
         <div className="card card-tight">
           {calendar.days.length === 0 ? (
             <div className="row">
               <div className="row-main">
-                <div className="row-title">No obligations due in this window</div>
+                <div className="row-title">No upcoming due dates in the next 30 days</div>
               </div>
             </div>
           ) : (
@@ -98,16 +136,19 @@ export default function DebtPage() {
                 return (
                   <div className="row" key={`${day.date}-${entry.accountId}`}>
                     <div className="row-main">
-                      <div className="row-title">{entry.label}</div>
+                      <div className="row-title" style={{ fontWeight: 600 }}>
+                        {entry.label}{' '}
+                        {days <= 5 && <span className="badge badge-alert">Due in {days}d</span>}
+                      </div>
                       <div className="row-sub">
-                        {formatDay(day.date)} · <span className={days <= 12 ? 'neg' : 'muted'}>in {days}d</span>
+                        {formatDay(day.date)} · <span className={days <= 7 ? 'neg' : 'muted'}>in {days} days</span>
                         {entry.minimumDue && (
-                          <> · min due <Money value={entry.minimumDue} /></>
+                          <> · Minimum payment: <Money value={entry.minimumDue} /></>
                         )}
                       </div>
                     </div>
                     <div className="row-value num">
-                      {entry.amountDue ? <Money value={entry.amountDue} /> : '—'}
+                      {entry.amountDue ? <Money value={entry.amountDue} showBadge /> : '—'}
                     </div>
                   </div>
                 )
@@ -115,36 +156,6 @@ export default function DebtPage() {
             )
           )}
         </div>
-      </section>
-
-      <section className="section">
-        <div className="section-head">
-          <h2 className="section-title">Credit accounts</h2>
-          <span className="hint">Evidence & APR breakdown</span>
-        </div>
-        <div className="card card-tight">
-          {debtMap.positions.map((pos) => {
-            const days = pos.dueOn ? daysUntil(pos.dueOn, t) : undefined
-            return (
-              <div className="row" key={pos.accountId}>
-                <div className="row-main">
-                  <div className="row-title" style={{ fontWeight: 600 }}>{pos.label}</div>
-                  <div className="row-sub">
-                    {pos.institution} · {pos.dueOn ? `Due ${formatDay(pos.dueOn)} (${days}d)` : 'No due date observed'}
-                    {pos.aprBasisPoints !== undefined && ` · APR ${formatApr(pos.aprBasisPoints)}`}
-                    {pos.asOf && ` · as of ${formatDay(pos.asOf)}`}
-                  </div>
-                </div>
-                <div className="row-value num">
-                  {pos.owed ? <Money value={pos.owed} /> : '—'}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-        <p className="hint" style={{ marginTop: 'var(--sp-2)' }}>
-          All totals grouped strictly by currency. No cross-currency sums — that requires a dated FX rate.
-        </p>
       </section>
     </>
   )
