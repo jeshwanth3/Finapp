@@ -125,7 +125,10 @@ export function getDebtAccounts(dbPath = './finapp.db'): DebtAccount[] {
  * Builds CashFlowRequest from real data.
  * Obligations are derived from statement due dates and minimums.
  */
-export function getCashFlowRequest(todayStr?: string, dbPath = './finapp.db'): CashFlowRequest {
+export function getCashFlowRequest(
+  todayStr?: string,
+  dbPath = './finapp.db',
+): CashFlowRequest & { readonly obligations: readonly Obligation[] } {
   const t = todayStr ?? today()
   const views = getStoreAccounts(dbPath)
   const checking = views.find((v) => v.kind === 'checking' && v.currency === 'USD')

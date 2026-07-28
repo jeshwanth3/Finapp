@@ -5,7 +5,8 @@ import { SyncStatus } from '@/components/SyncStatus'
 import { AstroGlobe3D } from '@/components/AstroGlobe3D'
 import { CashFlow3DChart } from '@/components/CashFlow3DChart'
 import { FxExposureCard } from '@/components/FxExposureCard'
-import { getStoreAccounts, getCashFlowRequest, getSyncState, today } from '@/app/store'
+import { getStoreAccounts, getCashFlowRequest, getSyncState, today, getRecentTransactions } from '@/app/store'
+import { TransactionList } from '@/components/ui/transaction-list'
 import { projectCashFlow } from '@/engine/cash-flow'
 
 function formatDay(iso: string): string {
@@ -320,6 +321,15 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {/* Interactive Expandable Transactions List */}
+      <section className="section">
+        <div className="section-head">
+          <h2 className="section-title">Recent Transactions & Activity</h2>
+          <span className="hint">Interactive expandable card & payment audit</span>
+        </div>
+        <TransactionList />
+      </section>
     </>
   )
 }

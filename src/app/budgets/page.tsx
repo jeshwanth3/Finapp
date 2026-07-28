@@ -2,6 +2,7 @@ import { Money } from '@/components/Money'
 import { getCashFlowRequest, today } from '@/app/store'
 import { sum, money } from '@/core/money'
 import type { Obligation } from '@/engine/cash-flow'
+import { TransactionList } from '@/components/ui/transaction-list'
 
 function formatDay(iso: string): string {
   const [year, month, day] = iso.split('-').map(Number)
@@ -121,6 +122,15 @@ export default function BudgetsPage() {
           </div>
         </section>
       ))}
+
+      {/* Subscription Payments Audit & Card Details */}
+      <section className="section">
+        <div className="section-head">
+          <h2 className="section-title">Subscription Payments Audit</h2>
+          <span className="hint">Interactive recurring transaction inspector</span>
+        </div>
+        <TransactionList />
+      </section>
     </>
   )
 }
