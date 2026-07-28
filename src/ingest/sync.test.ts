@@ -103,13 +103,17 @@ function collectingSink() {
 
 const NOW = '2026-07-26T12:00:00.000Z'
 
+// These fixtures carry no headers. Cursor mechanics are what is under test here,
+// so the sender-authenticity gate is disabled explicitly rather than by accident.
+const OFFLINE = { authenticity: false as const }
+
 /* -------------------------------------------------------------------------- */
 
 describe('cursor: first run and resume', () => {
   it('starts from zero when there is no stored cursor', async () => {
     const source = fakeSource([mail(1), mail(2), mail(3)])
     const sink = collectingSink()
-    const result = await runSync({
+    const result = await runSync({ ...OFFLINE,
       source, registry: registry(), cursors: memoryCursorStore(), sink, now: NOW,
     })
 
@@ -123,7 +127,7 @@ describe('cursor: first run and resume', () => {
     const cursors = memoryCursorStore({ uidValidity: 1, lastUid: 2 })
     const sink = collectingSink()
 
-    const result = await runSync({ source, registry: registry(), cursors, sink, now: NOW })
+    const result = await runSync({ ...OFFLINE, source, registry: registry(), cursors, sink, now: NOW })
 
     expect(source.calls[0]?.afterUid).toBe(2)
     expect(sink.accepted.map((a) => a.uid)).toEqual([3, 4])
@@ -136,7 +140,7 @@ describe('cursor: first run and resume', () => {
     const source = fakeSource(all)
     const cursors = memoryCursorStore({ uidValidity: 1, lastUid: 2 })
 
-    const result = await syncUntilCaughtUp({
+    const result = await syncUntilCaughtUp({ ...OFFLINE,
       source, registry: registry(), cursors, sink: collectingSink(), now: NOW, batchSize: 10,
     })
 
@@ -149,7 +153,7 @@ describe('cursor: first run and resume', () => {
     const cursors = memoryCursorStore({ uidValidity: 1, lastUid: 2 })
     const sink = collectingSink()
 
-    const result = await runSync({ source, registry: registry(), cursors, sink, now: NOW })
+    const result = await runSync({ ...OFFLINE, source, registry: registry(), cursors, sink, now: NOW })
 
     expect(result.fetched).toBe(0)
     expect(sink.accepted).toHaveLength(0)
@@ -163,12 +167,12 @@ describe('re-processing is safe — the property the whole design leans on', () 
     const source = fakeSource([mail(1), mail(2), mail(3)])
     const shared = registry()
 
-    const first = await runSync({
+    const first = await runSync({ ...OFFLINE,
       source, registry: shared, cursors: memoryCursorStore(), sink: collectingSink(), now: NOW,
     })
 
     // Simulate a lost cursor (restored backup, migration, manual reset).
-    const second = await runSync({
+    const second = await runSync({ ...OFFLINE,
       source, registry: shared, cursors: memoryCursorStore(), sink: collectingSink(), now: NOW,
     })
 
@@ -183,7 +187,7 @@ describe('poison pills do not strand the mailbox', () => {
     const source = fakeSource([mail(1), mail(2, GOOD_FROM, 'POISON'), mail(3)])
     const sink = collectingSink()
 
-    const result = await runSync({
+    const result = await runSync({ ...OFFLINE,
       source, registry: registry(), cursors: memoryCursorStore(), sink, now: NOW,
     })
 
@@ -196,7 +200,7 @@ describe('poison pills do not strand the mailbox', () => {
 
   it('counts quarantined messages so the depth can be surfaced', async () => {
     const source = fakeSource([mail(1, GOOD_FROM, 'POISON'), mail(2, GOOD_FROM, 'POISON')])
-    const result = await runSync({
+    const result = await runSync({ ...OFFLINE,
       source, registry: registry(), cursors: memoryCursorStore(), sink: collectingSink(), now: NOW,
     })
     expect(result.state.quarantineDepth).toBe(2)
@@ -204,7 +208,7 @@ describe('poison pills do not strand the mailbox', () => {
 
   it('ignores non-transactional senders without quarantining them', async () => {
     const source = fakeSource([mail(1, MARKETING_FROM), mail(2)])
-    const result = await runSync({
+    const result = await runSync({ ...OFFLINE,
       source, registry: registry(), cursors: memoryCursorStore(), sink: collectingSink(), now: NOW,
     })
 
@@ -224,7 +228,7 @@ describe('storage failure must not create a hole in the ledger', () => {
       },
     }
 
-    const result = await runSync({ source, registry: registry(), cursors, sink, now: NOW })
+    const result = await runSync({ ...OFFLINE, source, registry: registry(), cursors, sink, now: NOW })
 
     expect(result.ok).toBe(false)
     expect(result.error?.uid).toBe(2)
@@ -247,8 +251,8 @@ describe('storage failure must not create a hole in the ledger', () => {
       },
     }
 
-    await runSync({ source, registry: registry(), cursors, sink, now: NOW })
-    const second = await runSync({ source, registry: registry(), cursors, sink, now: NOW })
+    await runSync({ ...OFFLINE, source, registry: registry(), cursors, sink, now: NOW })
+    const second = await runSync({ ...OFFLINE, source, registry: registry(), cursors, sink, now: NOW })
 
     expect(seen).toEqual([1, 2, 3])
     expect(second.ok).toBe(true)
@@ -265,7 +269,7 @@ describe('storage failure must not create a hole in the ledger', () => {
       quarantineDepth: 0,
     }
 
-    const result = await runSync({
+    const result = await runSync({ ...OFFLINE,
       source, registry: registry(), cursors: memoryCursorStore(), sink, now: NOW, state: prior,
     })
 
@@ -282,7 +286,7 @@ describe('UIDVALIDITY reset', () => {
     const source = fakeSource([mail(1), mail(2), mail(3)], 2)
     const cursors = memoryCursorStore({ uidValidity: 1, lastUid: 2 })
 
-    const result = await runSync({
+    const result = await runSync({ ...OFFLINE,
       source, registry: registry(), cursors, sink: collectingSink(), now: NOW,
     })
 
@@ -295,7 +299,7 @@ describe('UIDVALIDITY reset', () => {
   it('does not reset when the generation is unchanged', async () => {
     const source = fakeSource([mail(1), mail(2)], 1)
     const cursors = memoryCursorStore({ uidValidity: 1, lastUid: 1 })
-    const result = await runSync({
+    const result = await runSync({ ...OFFLINE,
       source, registry: registry(), cursors, sink: collectingSink(), now: NOW,
     })
     expect(result.resetOccurred).toBe(false)
@@ -305,7 +309,7 @@ describe('UIDVALIDITY reset', () => {
 describe('batching', () => {
   it('reports hasMore when the batch limit is reached', async () => {
     const source = fakeSource(Array.from({ length: 25 }, (_, i) => mail(i + 1)))
-    const result = await runSync({
+    const result = await runSync({ ...OFFLINE,
       source, registry: registry(), cursors: memoryCursorStore(), sink: collectingSink(),
       now: NOW, batchSize: 10,
     })
@@ -316,7 +320,7 @@ describe('batching', () => {
 
   it('does not report hasMore on a short batch', async () => {
     const source = fakeSource([mail(1), mail(2)])
-    const result = await runSync({
+    const result = await runSync({ ...OFFLINE,
       source, registry: registry(), cursors: memoryCursorStore(), sink: collectingSink(),
       now: NOW, batchSize: 10,
     })
@@ -365,5 +369,83 @@ describe('freshness — a stale sync must look stale', () => {
       { ...INITIAL_SYNC_STATE, lastSuccessAt: '2026-07-23T12:00:00.000Z' }, NOW,
     )
     expect(f.label).toContain('3d ago')
+  })
+})
+
+/* -------------------------------------------------------------------------- */
+/* The authenticity gate, enforced in the loop                                 */
+/* -------------------------------------------------------------------------- */
+
+const GMAIL_PASS =
+  'mx.google.com; dkim=pass header.i=@notifications.usbank.com header.s=s1; ' +
+  'spf=pass smtp.mailfrom=bounce@notifications.usbank.com; ' +
+  'dmarc=pass (p=REJECT) header.from=notifications.usbank.com'
+
+function authedMail(uid: number, headers: Record<string, string>): MailboxMessage {
+  return { uid, message: msg(`msg-${uid}`), headers }
+}
+
+describe('sender authenticity is enforced before parsing', () => {
+  it('accepts a message whose provider verdict passes', async () => {
+    const source = fakeSource([authedMail(1, { 'authentication-results': GMAIL_PASS })])
+    const result = await runSync({
+      source, registry: registry(), cursors: memoryCursorStore(),
+      sink: collectingSink(), now: NOW,
+    })
+    expect(result.parsed).toBe(1)
+    expect(result.quarantined).toBe(0)
+  })
+
+  it('QUARANTINES a forged sender rather than parsing it', async () => {
+    // Allowlisted From, no authentication. Exactly the spoofing case.
+    const source = fakeSource([mail(1)])
+    const result = await runSync({
+      source, registry: registry(), cursors: memoryCursorStore(),
+      sink: collectingSink(), now: NOW,
+    })
+    expect(result.parsed).toBe(0)
+    expect(result.quarantined).toBe(1)
+  })
+
+  it('never lets an unverified message reach a parser', async () => {
+    let parserRan = false
+    const spy = new ParserRegistry([
+      { ...testParser, match: (m) => { parserRan = true; return m.from === GOOD_FROM } },
+    ])
+    const source = fakeSource([mail(1)])
+    await runSync({
+      source, registry: spy, cursors: memoryCursorStore(),
+      sink: collectingSink(), now: NOW,
+    })
+    expect(parserRan).toBe(false)
+  })
+
+  it('still advances the cursor past a rejected message', async () => {
+    // A spoofed message must not become a poison pill either.
+    const source = fakeSource([
+      mail(1),
+      authedMail(2, { 'authentication-results': GMAIL_PASS }),
+    ])
+    const result = await runSync({
+      source, registry: registry(), cursors: memoryCursorStore(),
+      sink: collectingSink(), now: NOW,
+    })
+    expect(result.quarantined).toBe(1)
+    expect(result.parsed).toBe(1)
+    expect(result.cursor.lastUid).toBe(2)
+  })
+
+  it('the gate is ON by default — opting out must be deliberate', async () => {
+    const source = fakeSource([mail(1)])
+    const gated = await runSync({
+      source, registry: registry(), cursors: memoryCursorStore(),
+      sink: collectingSink(), now: NOW,
+    })
+    const ungated = await runSync({ ...OFFLINE,
+      source, registry: registry(), cursors: memoryCursorStore(),
+      sink: collectingSink(), now: NOW,
+    })
+    expect(gated.quarantined).toBe(1)
+    expect(ungated.parsed).toBe(1)
   })
 })

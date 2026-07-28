@@ -59,6 +59,13 @@ export type QuarantineReason =
   | 'parser_extract_threw'
   | 'parser_produced_no_facts'
   | 'invalid_fact'
+  /**
+   * The From address is allowlisted but the message failed SPF/DKIM/DMARC, so
+   * the claimed sender is unverified. Quarantined rather than dropped: a genuine
+   * message can fail authentication through a misconfigured forwarder, and that
+   * is a case for a human to look at, not for silent deletion. See authenticity.ts.
+   */
+  | 'failed_authenticity'
 
 export interface IngestParsed {
   readonly status: 'parsed'

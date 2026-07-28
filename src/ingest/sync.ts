@@ -29,12 +29,20 @@
 
 import type { RawMessage } from './types'
 import type { IngestOutcome, ParserRegistry } from './registry'
+import { assessAuthenticity, type AuthenticityOptions } from './authenticity'
 
 /** A message as the mailbox presents it: a stable ascending id plus the mail. */
 export interface MailboxMessage {
   /** IMAP UID. Ascending within a UIDVALIDITY generation. */
   readonly uid: number
   readonly message: RawMessage
+  /**
+   * Raw headers, lowercased keys. Carries `authentication-results`, which is how
+   * a claimed sender is verified before anything it says is believed. Absent for
+   * offline fixtures, which is why the authenticity gate is explicitly opt-out
+   * rather than silently skipped when headers are missing.
+   */
+  readonly headers?: Readonly<Record<string, string | undefined>>
 }
 
 /**
@@ -119,6 +127,14 @@ export interface SyncOptions {
   state?: SyncState
   /** Cap per run so a first sync over years of mail does not run unbounded. */
   batchSize?: number
+  /**
+   * Sender-authenticity gate. Defaults to ON against a real mailbox.
+   *
+   * Pass `false` only for offline fixtures that carry no headers. Disabling it
+   * against live mail reduces the sender allowlist to "trust the From header",
+   * which anyone can forge — see authenticity.ts.
+   */
+  authenticity?: AuthenticityOptions | false
 }
 
 export const DEFAULT_BATCH_SIZE = 200
@@ -157,7 +173,27 @@ export async function runSync(opts: SyncOptions): Promise<SyncResult> {
   let failure: { uid: number; detail: string } | undefined
 
   for (const item of batch) {
-    const outcome = opts.registry.ingest(item.message)
+    // Authenticity is checked BEFORE parsing. A message that cannot be shown to
+    // come from who it claims must never reach a parser, because the parser's
+    // whole job is to turn its contents into believed facts.
+    let outcome: IngestOutcome
+    const authDecision =
+      opts.authenticity === false
+        ? null
+        : assessAuthenticity(item.headers ?? {}, item.message.from, opts.authenticity ?? {})
+
+    if (authDecision && !authDecision.trusted) {
+      outcome = {
+        status: 'quarantined',
+        messageId: item.message.id,
+        reason: 'failed_authenticity',
+        detail: `${authDecision.reason}: ${authDecision.detail}`,
+        parserId: null,
+        cause: null,
+      }
+    } else {
+      outcome = opts.registry.ingest(item.message)
+    }
 
     try {
       await opts.sink.accept(outcome, item)
