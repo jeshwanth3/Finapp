@@ -103,9 +103,9 @@ export function CashFlow3DChart({ days, currency = 'USD' }: CashFlow3DChartProps
               key={opt.label}
               onClick={() => setSimulatedDelta(opt.delta)}
               style={{
-                background: simulatedDelta === opt.delta ? 'rgba(0, 240, 255, 0.25)' : 'rgba(255, 255, 255, 0.05)',
-                color: simulatedDelta === opt.delta ? '#00f0ff' : '#f8f9fa',
-                border: '1px solid ' + (simulatedDelta === opt.delta ? '#00f0ff' : 'rgba(255, 255, 255, 0.15)'),
+                background: simulatedDelta === opt.delta ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.05)',
+                color: simulatedDelta === opt.delta ? '#ffffff' : '#f8f9fa',
+                border: '1px solid ' + (simulatedDelta === opt.delta ? '#38bdf8' : 'rgba(255, 255, 255, 0.15)'),
                 borderRadius: '6px',
                 padding: '4px 10px',
                 fontSize: '12px',
@@ -176,17 +176,17 @@ export function CashFlow3DChart({ days, currency = 'USD' }: CashFlow3DChartProps
           </text>
 
           {/* Area Fill */}
-          <polygon points={areaPoints} fill="rgba(0, 240, 255, 0.15)" />
+          <polygon points={areaPoints} fill="rgba(56, 189, 248, 0.12)" />
 
           {/* 3D Main Projection Trajectory */}
           <polyline
             fill="none"
-            stroke="#00f0ff"
+            stroke="#38bdf8"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
             points={linePoints}
-            style={{ filter: 'drop-shadow(0 0 10px rgba(0, 240, 255, 0.7))' }}
+            style={{ filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.7))' }}
           />
 
           {/* Daily 3D Pillar Markers */}
@@ -197,7 +197,7 @@ export function CashFlow3DChart({ days, currency = 'USD' }: CashFlow3DChartProps
             const isNegative = d.adjustedMinor < 0
             const hasEvent = d.events.length > 0
 
-            const color = isNegative ? '#f43f5e' : isTrough ? '#ffb800' : '#00f0ff'
+            const color = isNegative ? '#e11d48' : isTrough ? '#f59e0b' : '#38bdf8'
             const showLabel = i === 0 || i === adjustedDays.length - 1 || isTrough || hasEvent
 
             return (
@@ -222,7 +222,7 @@ export function CashFlow3DChart({ days, currency = 'USD' }: CashFlow3DChartProps
                   fill={color}
                   stroke="#000000"
                   strokeWidth="2"
-                  style={{ filter: `drop-shadow(0 0 6px ${color})` }}
+                  style={{ filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))' }}
                 />
 
                 {/* Balance & Date Readout */}
@@ -267,8 +267,8 @@ export function CashFlow3DChart({ days, currency = 'USD' }: CashFlow3DChartProps
           color: 'var(--text-muted)',
         }}
       >
-        <span>● CYAN: CHECKING BALANCE TRAJECTORY</span>
-        <span>● GOLD: LOWEST PROJECTED BALANCE (TROUGH)</span>
+        <span>● BLUE: CHECKING BALANCE TRAJECTORY</span>
+        <span>● AMBER: LOWEST PROJECTED BALANCE (TROUGH)</span>
         <span>● RED: $0 SHORTFALL LINE</span>
       </div>
     </div>

@@ -3,7 +3,7 @@
 import React, { useId, useState } from 'react'
 
 /**
- * Interactive 3D Planetary Globe with rotating orbital rings and neon cyan atmosphere.
+ * Interactive 3D Planetary Globe with rotating orbital rings and specular institutional atmosphere.
  * Designed for Pure Void Black (#000000) backgrounds with zero dark blue.
  */
 export function AstroGlobe3D() {
@@ -52,9 +52,9 @@ export function AstroGlobe3D() {
             position: 'absolute',
             inset: '20px',
             borderRadius: '50%',
-            background: 'radial-gradient(circle at 35% 30%, #00f0ff 0%, #0a0a0a 70%, #000000 100%)',
-            boxShadow: '0 0 35px rgba(0, 240, 255, 0.4), inset 0 0 20px rgba(0, 240, 255, 0.3)',
-            border: '1px solid rgba(0, 240, 255, 0.4)',
+            background: 'radial-gradient(circle at 35% 30%, #38bdf8 0%, #0f172a 70%, #000000 100%)',
+            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(56, 189, 248, 0.15)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
           }}
         />
 
@@ -64,10 +64,10 @@ export function AstroGlobe3D() {
             position: 'absolute',
             inset: '-10px',
             borderRadius: '50%',
-            border: '1.5px solid rgba(0, 240, 255, 0.4)',
+            border: '1.5px solid rgba(255, 255, 255, 0.25)',
             borderTopColor: 'transparent',
             transform: 'rotateX(75deg) rotateY(15deg)',
-            boxShadow: '0 0 15px rgba(0, 240, 255, 0.2)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
           }}
         />
 
@@ -77,7 +77,7 @@ export function AstroGlobe3D() {
             position: 'absolute',
             inset: '-22px',
             borderRadius: '50%',
-            border: '1px dashed rgba(255, 184, 0, 0.35)',
+            border: '1px dashed rgba(245, 158, 11, 0.3)',
             transform: 'rotateX(70deg) rotateY(-35deg)',
           }}
         />
@@ -91,8 +91,8 @@ export function AstroGlobe3D() {
             width: '8px',
             height: '8px',
             borderRadius: '50%',
-            background: '#ffb800',
-            boxShadow: '0 0 12px #ffb800',
+            background: '#f59e0b',
+            boxShadow: '0 2px 6px rgba(245, 158, 11, 0.4)',
           }}
         />
       </div>

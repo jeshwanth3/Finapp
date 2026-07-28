@@ -66,9 +66,9 @@ export function FxExposureCard({ sectors }: FxExposureCardProps) {
               height: '100%',
               background:
                 item.sector.currency === 'USD'
-                  ? 'linear-gradient(90deg, #00f0ff 0%, #38bdf8 100%)'
-                  : 'linear-gradient(90deg, #ffb800 0%, #f59e0b 100%)',
-              boxShadow: item.sector.currency === 'USD' ? '0 0 12px rgba(0,240,255,0.5)' : '0 0 12px rgba(255,184,0,0.5)',
+                  ? 'linear-gradient(90deg, #38bdf8 0%, #0284c7 100%)'
+                  : 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)',
+              boxShadow: 'none',
             }}
             title={`${item.sector.currency}: ${format(item.sector.netWorth)} (${item.pct}%)`}
           />

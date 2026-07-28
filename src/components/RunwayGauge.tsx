@@ -27,7 +27,7 @@ export function RunwayGauge({ liquidAssets, monthlyBurnRate, netWorth }: RunwayG
 
   // Runway shield status
   const shieldColor =
-    runwayNum >= 6 ? '#10b981' : runwayNum >= 3 ? '#00f0ff' : runwayNum >= 1 ? '#ffb800' : '#f43f5e'
+    runwayNum >= 6 ? '#10b981' : runwayNum >= 3 ? '#38bdf8' : runwayNum >= 1 ? '#f59e0b' : '#e11d48'
   const shieldLabel =
     runwayNum >= 6
       ? '6+ Month Security Shield'
@@ -39,11 +39,11 @@ export function RunwayGauge({ liquidAssets, monthlyBurnRate, netWorth }: RunwayG
     <div
       style={{
         background: 'rgba(18, 18, 18, 0.9)',
-        border: '1px solid var(--border-cyan)',
+        border: '1px solid rgba(255, 255, 255, 0.12)',
         borderRadius: 'var(--r-2)',
         padding: '16px',
         marginTop: '16px',
-        boxShadow: '0 0 25px rgba(0, 240, 255, 0.12)',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
@@ -68,7 +68,7 @@ export function RunwayGauge({ liquidAssets, monthlyBurnRate, netWorth }: RunwayG
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', fontFamily: 'var(--mono)' }}>
             Liquid Survival Runway
           </div>
-          <div style={{ fontSize: '24px', fontWeight: 800, color: '#00f0ff', fontFamily: 'var(--mono)', marginTop: '4px' }}>
+          <div style={{ fontSize: '24px', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--mono)', marginTop: '4px' }}>
             {monthsOfRunway} <span style={{ fontSize: '14px', fontWeight: 600 }}>months</span>
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text-faint)', marginTop: '4px' }}>

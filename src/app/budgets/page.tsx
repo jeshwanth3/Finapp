@@ -103,7 +103,7 @@ export default function BudgetsPage() {
                   <div className="row-main">
                     <div className="row-title" style={{ fontWeight: 600 }}>
                       {item.label}{' '}
-                      <span className="badge" style={{ background: 'rgba(255, 184, 0, 0.15)', color: '#ffb800', border: '1px solid rgba(255, 184, 0, 0.3)' }}>
+                      <span className="badge" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
                         Monthly Recurring
                       </span>
                     </div>

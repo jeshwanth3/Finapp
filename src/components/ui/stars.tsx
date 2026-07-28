@@ -139,13 +139,13 @@ export function StarsBackground({
           count={400}
           size={2}
           duration={speed * 2}
-          starColor="rgba(0, 240, 255, 0.65)"
+          starColor="rgba(255, 255, 255, 0.55)"
         />
         <StarLayer
           count={200}
           size={3}
           duration={speed * 3}
-          starColor="rgba(255, 184, 0, 0.65)"
+          starColor="rgba(200, 215, 235, 0.45)"
         />
       </div>
 
