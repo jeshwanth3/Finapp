@@ -75,7 +75,7 @@ export class GmailImapSource implements MailboxSource {
 
     // Open the target mailbox (INBOX by default)
     const mailbox = await client.mailboxOpen(this.#config.mailbox ?? 'INBOX')
-    this.#cachedValidity = mailbox.uidValidity
+    this.#cachedValidity = Number(mailbox.uidValidity)
   }
 
   async disconnect(): Promise<void> {
@@ -90,8 +90,8 @@ export class GmailImapSource implements MailboxSource {
 
     if (!this.#client) throw new Error('GmailImapSource: not connected')
     const mailbox = await this.#client.mailboxOpen(this.#config.mailbox ?? 'INBOX')
-    this.#cachedValidity = mailbox.uidValidity
-    return mailbox.uidValidity
+    this.#cachedValidity = Number(mailbox.uidValidity)
+    return Number(mailbox.uidValidity)
   }
 
   async fetchSince(afterUid: number, limit: number): Promise<readonly MailboxMessage[]> {

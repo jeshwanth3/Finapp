@@ -580,3 +580,26 @@ CREATE TABLE parse_failures (
 CREATE INDEX ix_parse_failures_open ON parse_failures (failed_at DESC) WHERE resolved_at IS NULL;
 CREATE INDEX ix_parse_failures_parser ON parse_failures (parser_id, failed_at DESC);
 CREATE INDEX ix_parse_failures_message ON parse_failures (raw_message_id);
+
+CREATE TABLE sync_cursors (
+  id              TEXT PRIMARY KEY DEFAULT 'default',
+  mailbox         TEXT NOT NULL DEFAULT 'INBOX',
+  uid_validity    INTEGER NOT NULL,
+  last_uid        INTEGER NOT NULL DEFAULT 0 CHECK (last_uid >= 0),
+  updated_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+                  CHECK (updated_at GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T*Z')
+) STRICT;
+
+CREATE TABLE sync_state (
+  id                      TEXT PRIMARY KEY DEFAULT 'default',
+  last_attempt_at         TEXT
+                          CHECK (last_attempt_at IS NULL OR
+                                 last_attempt_at GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T*Z'),
+  last_success_at         TEXT
+                          CHECK (last_success_at IS NULL OR
+                                 last_success_at GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T*Z'),
+  consecutive_failures    INTEGER NOT NULL DEFAULT 0 CHECK (consecutive_failures >= 0),
+  quarantine_depth        INTEGER NOT NULL DEFAULT 0 CHECK (quarantine_depth >= 0),
+  total_parsed            INTEGER NOT NULL DEFAULT 0 CHECK (total_parsed >= 0),
+  total_ignored           INTEGER NOT NULL DEFAULT 0 CHECK (total_ignored >= 0)
+) STRICT;

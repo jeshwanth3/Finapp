@@ -3,9 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   // node:sqlite is a built-in; keep it external to the server bundle.
   serverExternalPackages: [],
-  experimental: {
-    typedRoutes: false,
-  },
+  typedRoutes: false,
 }
 
 export default nextConfig

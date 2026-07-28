@@ -11,6 +11,7 @@
 import { existsSync } from 'node:fs'
 import { openDatabase, closeDatabase, IN_MEMORY } from '@/db/db'
 import { migrate } from '@/db/migrate'
+import { seedOpenDatabase } from '@/db/seed'
 import { createRepositories, type Repositories } from '@/db/repositories'
 import { money, sum, type Money } from '@/core/money'
 import type { DebtAccount } from '@/engine/debt-map'
@@ -30,7 +31,11 @@ export function withStore<T>(fn: (repos: Repositories) => T, dbPath = './finapp.
   const db = openDatabase({ path, readOnly: false, createDirectory: true })
 
   try {
-    migrate(db)
+    if (!isFilePresent) {
+      seedOpenDatabase(db)
+    } else {
+      migrate(db)
+    }
     const repos = createRepositories(db)
     return fn(repos)
   } finally {

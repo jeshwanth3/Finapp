@@ -143,6 +143,11 @@ function processFact(db: Database, repos: Repositories, fact: ParsedFact): void 
   }
 }
 
+function mapAccountKind(kind: import('./types').AccountKind | null): import('@/db/types').AccountKind {
+  if (kind === 'brokerage') return 'savings'
+  return kind ?? 'credit_card'
+}
+
 /**
  * Resolve an AccountRef to an existing Account id, creating one if needed.
  */
@@ -183,7 +188,7 @@ function resolveAccount(repos: Repositories, fact: ParsedFact): string {
   repos.accounts.insert({
     id,
     institution: ref.institution,
-    kind: ref.kind ?? 'credit_card',
+    kind: mapAccountKind(ref.kind),
     currency: ref.currency,
     region: ref.region,
     displayName: `${ref.institution} ${ref.kind ?? 'account'}${ref.last4 ? ` ···${ref.last4}` : ''}`,

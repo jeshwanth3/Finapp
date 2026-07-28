@@ -71,10 +71,12 @@ export default function TodayPage() {
 
   // Wire into the deterministic insight engine
   const req = getCashFlowRequest(t)
-  const hasObligations = req.obligations.length > 0
+  const obligations = req.obligations ?? []
+  const hasObligations = obligations.length > 0
 
-  let troughDay: { date: string; closing: ReturnType<typeof import('@/core/money').money>; events: { label: string }[] } | null = null
-  let displayDays: typeof projection.days = []
+  type ProjectedDay = ReturnType<typeof projectCashFlow>['days'][number]
+  let troughDay: ProjectedDay | null = null
+  let displayDays: readonly ProjectedDay[] = []
   let projection: ReturnType<typeof projectCashFlow> | null = null
 
   if (hasObligations && checking) {
@@ -88,7 +90,7 @@ export default function TodayPage() {
       .slice(0, 10)
   }
 
-  const next21 = (req.obligations ?? []).filter((ob) => {
+  const next21 = obligations.filter((ob) => {
     const days = daysUntil(ob.dueOn, t)
     return days >= 0 && days <= 21
   }).sort((a, b) => a.dueOn.localeCompare(b.dueOn))
